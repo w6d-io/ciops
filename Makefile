@@ -1,6 +1,8 @@
-VERSION=$(shell basename /$(shell git symbolic-ref --quiet HEAD 2> /dev/null ) )
-BUILD_DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
-VCS_REF=$(shell git rev-parse HEAD)
+VERSION    = $(shell basename /$(shell git symbolic-ref --quiet HEAD 2> /dev/null ) )
+BUILD_DATE = $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
+VCS_REF    = $(shell git rev-parse HEAD)
+
+export NEXT_TAG     ?=
 
 # Image URL to use all building/pushing image targets
 IMG ?= ciops:$(VERSION)
@@ -117,6 +119,8 @@ $(LOCALBIN):
 KUSTOMIZE ?= $(LOCALBIN)/kustomize
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
+GITCHGLOG ?= $(LOCALBIN)/git-chglog
+
 
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v4.5.7
@@ -137,3 +141,13 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
+
+.PHONY: chglog
+chglog: $(GITCHGLOG) ## Download git-chglog locally if necessary
+$(GITCHGLOG): $(LOCALBIN)
+	test -s $(LOCALBIN)/git-chglog || GOBIN=$(LOCALBIN) go install github.com/git-chglog/git-chglog/cmd/git-chglog@latest
+
+# Changelog
+.PHONY: changelog
+changelog: chglog
+	$(GITCHGLOG) -o docs/CHANGELOG.md --next-tag $(NEXT_TAG)

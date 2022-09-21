@@ -2,27 +2,27 @@ apiVersion: v1
 kind: Namespace
 metadata:
   labels:
-    control-plane: controller-manager
-  name: system
+    control-plane: ciops
+  name: wd6-ops
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: controller-manager
-  namespace: system
+  name: ciops
+  namespace: w6d-ops
   labels:
-    control-plane: controller-manager
+    control-plane: ciops
 spec:
   selector:
     matchLabels:
-      control-plane: controller-manager
+      control-plane: ciops
   replicas: 1
   template:
     metadata:
       annotations:
-        kubectl.kubernetes.io/default-container: manager
+        kubectl.kubernetes.io/default-container: ciops
       labels:
-        control-plane: controller-manager
+        control-plane: ciops
     spec:
       securityContext:
         runAsNonRoot: true
@@ -35,11 +35,12 @@ spec:
         #   type: RuntimeDefault
       containers:
       - command:
-        - /manager
-        args:
-        - --leader-elect
-        image: controller:latest
-        name: manager
+        - /ciops
+        env:
+        - name: CIOPS_LEADER
+          value: "true"
+        image: ciops:latest
+        name: ciops
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -62,9 +63,9 @@ spec:
         resources:
           limits:
             cpu: 500m
-            memory: 128Mi
+            memory: 256Mi
           requests:
             cpu: 10m
             memory: 64Mi
-      serviceAccountName: controller-manager
+      serviceAccountName: ciops
       terminationGracePeriodSeconds: 10

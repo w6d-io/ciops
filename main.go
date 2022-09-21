@@ -17,88 +17,92 @@ limitations under the License.
 package main
 
 import (
-	"flag"
-	"os"
+    "context"
+    "github.com/spf13/cobra"
+    "github.com/spf13/viper"
+    "github.com/w6d-io/x/cmdx"
+    "github.com/w6d-io/x/logx"
+    "github.com/w6d-io/x/pflagx"
+    "gitlab.w6d.io/w6d/ciops/internal/config"
+    "os"
 
-	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
-	// to ensure that exec-entrypoint and run can make use of them.
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
+    // Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
+    // to ensure that exec-entrypoint and run can make use of them.
+    _ "k8s.io/client-go/plugin/pkg/client/auth"
 
-	"k8s.io/apimachinery/pkg/runtime"
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/healthz"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-	//+kubebuilder:scaffold:imports
+    "k8s.io/apimachinery/pkg/runtime"
+    utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+    clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+    ctrl "sigs.k8s.io/controller-runtime"
+    "sigs.k8s.io/controller-runtime/pkg/healthz"
+    //+kubebuilder:scaffold:imports
 )
 
 var (
-	scheme   = runtime.NewScheme()
-	setupLog = ctrl.Log.WithName("setup")
+    scheme  = runtime.NewScheme()
+    rootCmd = &cobra.Command{
+        Use: "ciops",
+        Run: ciops,
+    }
+    OsExit = os.Exit
 )
 
 func init() {
-	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+    utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	//+kubebuilder:scaffold:scheme
+    //+kubebuilder:scaffold:scheme
+
+    cobra.OnInitialize(config.Init)
+    pflagx.CallerSkip = -1
+    pflagx.Init(rootCmd, &config.CfgFile)
 }
 
 func main() {
-	var metricsAddr string
-	var enableLeaderElection bool
-	var probeAddr string
-	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
-	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
-	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
-		"Enable leader election for controller manager. "+
-			"Enabling this will ensure there is only one active controller manager.")
-	opts := zap.Options{
-		Development: true,
-	}
-	opts.BindFlags(flag.CommandLine)
-	flag.Parse()
+    log := logx.WithName(context.TODO(), "Main")
+    rootCmd.AddCommand(cmdx.Version(&config.Version, &config.Revision, &config.Built))
+    if err := rootCmd.Execute(); err != nil {
+        log.Error(err, "exec command failed")
+        OsExit(1)
+    }
+}
 
-	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+func ciops(_ *cobra.Command, _ []string) {
+    log := logx.WithName(context.TODO(), "setup")
+    if viper.ConfigFileUsed() == "" {
+        log.Info("no configuration file set")
+    }
+    log.Info("start service", "Version", config.Version, "Built",
+        config.Built, "Revision", config.Revision)
 
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:                 scheme,
-		MetricsBindAddress:     metricsAddr,
-		Port:                   9443,
-		HealthProbeBindAddress: probeAddr,
-		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "0d2f0ae4.w6d.io",
-		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
-		// when the Manager ends. This requires the binary to immediately end when the
-		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
-		// speeds up voluntary leader transitions as the new leader don't have to wait
-		// LeaseDuration time first.
-		//
-		// In the default scaffold provided, the program ends immediately after
-		// the manager stops, so would be fine to enable this option. However,
-		// if you are doing or is intended to do any operation such as perform cleanups
-		// after the manager stops then its usage might be unsafe.
-		// LeaderElectionReleaseOnCancel: true,
-	})
-	if err != nil {
-		setupLog.Error(err, "unable to start manager")
-		os.Exit(1)
-	}
+    mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+        Scheme:                        scheme,
+        MetricsBindAddress:            viper.GetString(config.ViperKeyMetricsListen),
+        Port:                          9443,
+        HealthProbeBindAddress:        viper.GetString(config.ViperKeyProbListen),
+        LeaderElection:                viper.GetBool(config.ViperKeyEnableLeader),
+        LeaderElectionID:              "ciops.w6d.io",
+        LeaderElectionReleaseOnCancel: true,
+        Namespace:                     viper.GetString(config.ViperKeyNamespace),
+    })
+    if err != nil {
+        log.Error(err, "unable to start manager")
+        OsExit(1)
+    }
 
-	//+kubebuilder:scaffold:builder
+    //+kubebuilder:scaffold:builder
 
-	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
-		setupLog.Error(err, "unable to set up health check")
-		os.Exit(1)
-	}
-	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
-		setupLog.Error(err, "unable to set up ready check")
-		os.Exit(1)
-	}
+    if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
+        log.Error(err, "unable to set up health check")
+        OsExit(1)
+    }
+    if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
+        log.Error(err, "unable to set up ready check")
+        OsExit(1)
+    }
 
-	setupLog.Info("starting manager")
-	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
-		setupLog.Error(err, "problem running manager")
-		os.Exit(1)
-	}
+    log.Info("starting manager")
+    if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+        log.Error(err, "problem running manager")
+        OsExit(1)
+    }
 }

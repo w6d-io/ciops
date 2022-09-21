@@ -1,0 +1,50 @@
+{
+  "$id": "https://gitlab.w6d.io/w6d/githubmgt/internal/embedx/config.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WILDCARD CI Operator",
+  "type": "object",
+  "definitions": {
+    "listen": {
+      "title": "listen port",
+      "type": "string",
+      "oneOf": [
+        {
+          "pattern": "^:([0-9]+)$"
+        },
+        {
+          "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}:([0-9]+)$"
+        },
+        {
+          "format": "uri"
+        }
+      ],
+      "examples": [
+        "127.0.0.1:6831",
+        ":4321"
+      ]
+    }
+  },
+  "properties": {
+    "listen" : {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "metrics": {
+          "$ref": "#/definitions/listen"
+        },
+        "probe": {
+          "$ref": "#/definitions/listen"
+        }
+      }
+    },
+    "leader": {
+      "type": "boolean",
+      "default": false
+    },
+    "namespace": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}
+

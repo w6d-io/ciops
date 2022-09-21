@@ -16,8 +16,8 @@ Created on 21/09/2022
 package config
 
 const (
-    ViperKeyMetricsListen = "listen.metrics"
-    ViperKeyProbListen    = "listen.probe"
-    ViperKeyEnableLeader  = "leader"
-    ViperKeyNamespace     = "namespace"
+	ViperKeyMetricsListen = "listen.metrics"
+	ViperKeyProbListen    = "listen.probe"
+	ViperKeyEnableLeader  = "leader"
+	ViperKeyNamespace     = "namespace"
 )

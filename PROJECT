@@ -1,0 +1,8 @@
+domain: w6d.io
+layout: go.kubebuilder.io/v3
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: ciops
+repo: gitlab.w6d.io/w6d/ciops
+version: "3"

@@ -1,8 +1,19 @@
 domain: w6d.io
-layout: go.kubebuilder.io/v3
+layout:
+- go.kubebuilder.io/v3
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: ciops
 repo: gitlab.w6d.io/w6d/ciops
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: w6d.io
+  group: ci
+  kind: Event
+  path: gitlab.w6d.io/w6d/ciops/api/v1alpha1
+  version: v1alpha1
 version: "3"

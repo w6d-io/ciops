@@ -1,7 +1,7 @@
 # Build the manager binary
 FROM golang:1.19 as builder
 
-WORKDIR /workspace
+WORKDIR /gitlab.w6d.io/w6d/ciops
 # Copy the Go Modules manifests
 COPY go.mod go.mod
 COPY go.sum go.sum
@@ -13,6 +13,7 @@ RUN go mod download
 COPY main.go main.go
 COPY api/ api/
 COPY controllers/ controllers/
+COPY internal/ internal/
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
@@ -23,7 +24,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
-COPY --from=builder /workspace/ciops .
+COPY --from=builder /gitlab.w6d.io/w6d/ciops/ciops .
 USER 1001:1001
 
 ENTRYPOINT ["/ciops"]

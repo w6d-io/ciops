@@ -43,6 +43,9 @@
     },
     "namespace": {
       "type": "string"
+    },
+    "pipeline_prefix": {
+      "type": "string"
     }
   },
   "additionalProperties": false

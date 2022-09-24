@@ -44,7 +44,7 @@ var (
 
 func Build(ctx context.Context, r client.Client, e *v1alpha1.Event) error {
     eSpec := e.Spec
-    log := logx.WithName(ctx, "pipelinerun.Build").WithValues("pipelinerun", getPipelinerunName(*eSpec.EventID), "namespace", e.Namespace)
+    log := logx.WithName(ctx, "pipelinerun.Build").WithValues("pipelinerun", GetPipelinerunName(*eSpec.EventID), "namespace", e.Namespace)
     log.V(1).Info("build pipelinerun")
     params := []pipelinev1.Param{
         {
@@ -93,7 +93,7 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Event) error {
             Name: "W6D_CI_PIPELINERUN_ID",
             Value: pipelinev1.ParamValue{
                 Type:      pipelinev1.ParamTypeString,
-                StringVal: getPipelinerunName(*eSpec.EventID),
+                StringVal: GetPipelinerunName(*eSpec.EventID),
             },
         },
         {
@@ -141,7 +141,7 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Event) error {
 
     resource := &pipelinev1.PipelineRun{
         ObjectMeta: metav1.ObjectMeta{
-            Name:      getPipelinerunName(*eSpec.EventID),
+            Name:      GetPipelinerunName(*eSpec.EventID),
             Namespace: e.Namespace,
             Labels: map[string]string{
                 "pipeline.w6d.io/event_id":    fmt.Sprintf("%d", *eSpec.EventID),
@@ -151,7 +151,17 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Event) error {
                 "pipeline.w6d.io/type":        eSpec.Trigger.Type,
             },
         },
-        Spec: pipelinev1.PipelineRunSpec{
+    }
+    resource.Annotations[v1alpha1.AnnotationSchedule] = time.Now().Format(time.RFC3339)
+
+    log.V(2).Info(resource.Kind, "content", fmt.Sprintf("%v",
+        getObjectContain(resource)))
+
+    op, err := controllerutil.CreateOrUpdate(ctx, r, resource, func() error {
+        //if resource.CreationTimestamp.IsZero() {
+        //    log.Info("")
+        //}
+        resource.Spec = pipelinev1.PipelineRunSpec{
             PipelineRef: &pipelinev1.PipelineRef{
                 Name: eSpec.PipelineRef,
             },
@@ -161,14 +171,7 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Event) error {
                 ServiceAccountName: "default",
             },
             Workspaces: Workspace.WB,
-        },
-    }
-    resource.Annotations[v1alpha1.AnnotationSchedule] = time.Now().Format(time.RFC3339)
-
-    log.V(2).Info(resource.Kind, "content", fmt.Sprintf("%v",
-        getObjectContain(resource)))
-
-    op, err := controllerutil.CreateOrUpdate(ctx, r, resource, func() error {
+        }
         return nil
     })
     if err != nil {

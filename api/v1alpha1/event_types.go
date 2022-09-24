@@ -23,11 +23,29 @@ import (
 type Status int
 
 const (
-    Pending Status = iota
-    Running
-    Cancelled
-    Skipped
-    Timeout
+    // Pending means that the pipeline is waiting for start
+    Pending State = "Pending"
+
+    // Creating means that tekton resource creation is in progress
+    Creating State = "Creating"
+
+    // Queued means that the PipelineRun not applied yet due to limitation
+    Queued State = "Queued"
+
+    // Running means at least on Step of the Task is running
+    Running State = "Running"
+
+    // Failed means at least on Step of the Task is failed
+    Failed State = "Failed"
+
+    // Succeeded means that all Task is success
+    Succeeded State = "Succeeded"
+
+    // Cancelled means that a TaskRun or PipelineRun has been cancelled
+    Cancelled State = "Cancelled"
+
+    // Errored means that at least one tekton resource couldn't be created
+    Errored State = "Errored"
 )
 
 const (

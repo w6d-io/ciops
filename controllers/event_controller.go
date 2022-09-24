@@ -19,7 +19,11 @@ package controllers
 import (
     "context"
     "gitlab.w6d.io/w6d/ciops/internal/pipelineruns"
+    "k8s.io/apimachinery/pkg/api/meta"
+    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+    "k8s.io/apimachinery/pkg/types"
     "k8s.io/client-go/util/retry"
+    "strings"
 
     "github.com/google/uuid"
     tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
@@ -61,15 +65,62 @@ func (r *EventReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
         log.Error(err, "failed to get Event")
         return ctrl.Result{}, err
     }
-    if err = pipelineruns.Build(ctx, r, e); err != nil {
+    status := v1alpha1.EventStatus{PipelineRunName: pipelineruns.GetPipelinerunName(*e.Spec.EventID)}
+    var childPr tkn.PipelineRun
+    err = r.Get(ctx, types.NamespacedName{Namespace: req.Namespace}, &childPr)
+    if client.IgnoreNotFound(err) != nil {
+        log.Error(err, "Unable to get PipelineRun")
         return ctrl.Result{}, err
     }
-    log.V(1).Info("update status")
-    if err = r.UpdateStatus(ctx, mdb, sts); err != nil {
+    if !errors.IsNotFound(err) {
+        status.State = pipelineruns.Condition(childPr.Status.Conditions)
+        status.Message = pipelineruns.Message(childPr.Status.Conditions)
+        if err := r.UpdateStatus(ctx, req, status); err != nil {
+            log.Error(err, "unable to update Play status")
+            return ctrl.Result{Requeue: true}, err
+        }
+        return ctrl.Result{Requeue: false}, nil
+    }
+    log.V(1).Info("pipelinerun not found")
+    log.V(1).Info("getting all pipeline run")
+
+    var prs tkn.PipelineRunList
+    if err := r.List(ctx, &prs, client.InNamespace(req.Namespace)); IgnoreNotExists(err) != nil {
+        log.Error(err, "get list pipelinerun failed")
+        log.V(1).Info("update status", status, v1alpha1.Errored, "step", "2")
+        status.State = v1alpha1.Errored
+        if err := r.UpdateStatus(ctx, req, status); err != nil {
+            return ctrl.Result{Requeue: true}, err
+        }
+        return ctrl.Result{}, nil
+    }
+
+    log.V(1).Info("check pipeline run running")
+    var runningPipeline []tkn.PipelineRun
+    for _, pr := range prs.Items {
+        if pipelineruns.IsPipelineRunning(pr) {
+            runningPipeline = append(runningPipeline, pr)
+        }
+    }
+
+    if err = pipelineruns.Build(ctx, r, e); err != nil {
+        log.Error(err, "failed to create pipelinerun")
+        log.V(1).Info("update status", "status", v1alpha1.Errored,
+            "step", "5")
+        status.State = v1alpha1.Errored
+        status.Message = err.Error()
+        if err := r.UpdateStatus(ctx, req, status); err != nil {
+            return ctrl.Result{Requeue: true}, err
+        }
+        return ctrl.Result{Requeue: true}, err
+    }
+    log.V(1).Info("update status", "status", v1alpha1.Pending, "step", "6")
+    status.State = v1alpha1.Pending
+    if err = r.UpdateStatus(ctx, req, status); err != nil {
         log.Error(err, "update status failed")
         return ctrl.Result{Requeue: true}, err
     }
-    return ctrl.Result{}, nil
+    return ctrl.Result{Requeue: false}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -83,12 +134,45 @@ func (r *EventReconciler) SetupWithManager(mgr ctrl.Manager) error {
         Complete(r)
 }
 
-func (r *EventReconciler) UpdateStatus(ctx context.Context, e *v1alpha1.Event) error {
+func (r *EventReconciler) GetStatus(state v1alpha1.State) metav1.ConditionStatus {
+    switch state {
+    case v1alpha1.Errored, v1alpha1.Cancelled, v1alpha1.Failed:
+        return metav1.ConditionFalse
+    case v1alpha1.Succeeded:
+        return metav1.ConditionTrue
+    default:
+        return metav1.ConditionUnknown
+    }
+}
+func (r *EventReconciler) UpdateStatus(ctx context.Context, req ctrl.Request, status v1alpha1.EventStatus) error {
     log := logx.WithName(ctx, "EventReconciler.UpdateStatus")
-    var err error
-    err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
-
+    log.V(1).Info("update status")
+    err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+        e := &v1alpha1.Event{}
+        err := r.Get(ctx, req.NamespacedName, e)
+        if err != nil {
+            return err
+        }
+        e.Status.State = status.State
+        e.Status.Message = status.Message
+        e.Status.PipelineRunName = status.PipelineRunName
+        meta.SetStatusCondition(&e.Status.Conditions, metav1.Condition{
+            Type:    string(status.State),
+            Status:  r.GetStatus(status.State),
+            Reason:  string(status.State),
+            Message: status.Message,
+        })
+        err = r.Status().Update(ctx, e)
         return nil
     })
-    return nil
+    return err
+}
+
+func IgnoreNotExists(err error) error {
+    if err == nil ||
+        (strings.HasPrefix(err.Error(), "Index with name field:") &&
+            strings.HasSuffix(err.Error(), "does not exist")) {
+        return nil
+    }
+    return err
 }

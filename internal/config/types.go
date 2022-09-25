@@ -16,9 +16,9 @@ Created on 21/09/2022
 package config
 
 const (
-    ViperKeyMetricsListen     = "listen.metrics"
-    ViperKeyProbListen        = "listen.probe"
-    ViperKeyEnableLeader      = "leader"
-    ViperKeyNamespace         = "namespace"
-    ViperKeyPipelinerunPrefix = "pipeline_prefix"
+	ViperKeyMetricsListen     = "listen.metrics"
+	ViperKeyProbListen        = "listen.probe"
+	ViperKeyEnableLeader      = "leader"
+	ViperKeyNamespace         = "namespace"
+	ViperKeyPipelinerunPrefix = "pipeline_prefix"
 )

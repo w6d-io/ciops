@@ -17,102 +17,102 @@ limitations under the License.
 package main
 
 import (
-    "context"
-    "os"
+	"context"
+	"os"
 
-    "github.com/spf13/cobra"
-    "github.com/spf13/viper"
-    tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
-    "k8s.io/apimachinery/pkg/runtime"
-    utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-    clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-    _ "k8s.io/client-go/plugin/pkg/client/auth"
-    ctrl "sigs.k8s.io/controller-runtime"
-    "sigs.k8s.io/controller-runtime/pkg/healthz"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	"k8s.io/apimachinery/pkg/runtime"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/healthz"
 
-    //+kubebuilder:scaffold:imports
+	//+kubebuilder:scaffold:imports
 
-    "github.com/w6d-io/x/cmdx"
-    "github.com/w6d-io/x/logx"
-    "github.com/w6d-io/x/pflagx"
-    civ1alpha1 "gitlab.w6d.io/w6d/ciops/api/v1alpha1"
-    "gitlab.w6d.io/w6d/ciops/controllers"
-    "gitlab.w6d.io/w6d/ciops/internal/config"
+	"github.com/w6d-io/x/cmdx"
+	"github.com/w6d-io/x/logx"
+	"github.com/w6d-io/x/pflagx"
+	civ1alpha1 "gitlab.w6d.io/w6d/ciops/api/v1alpha1"
+	"gitlab.w6d.io/w6d/ciops/controllers"
+	"gitlab.w6d.io/w6d/ciops/internal/config"
 )
 
 var (
-    scheme  = runtime.NewScheme()
-    rootCmd = &cobra.Command{
-        Use: "ciops",
-        Run: ciops,
-    }
-    OsExit = os.Exit
+	scheme  = runtime.NewScheme()
+	rootCmd = &cobra.Command{
+		Use: "ciops",
+		Run: ciops,
+	}
+	OsExit = os.Exit
 )
 
 func init() {
-    utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-    utilruntime.Must(civ1alpha1.AddToScheme(scheme))
-    utilruntime.Must(tkn.AddToScheme(scheme))
-    //+kubebuilder:scaffold:scheme
+	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+	utilruntime.Must(civ1alpha1.AddToScheme(scheme))
+	utilruntime.Must(tkn.AddToScheme(scheme))
+	//+kubebuilder:scaffold:scheme
 
-    cobra.OnInitialize(config.Init)
-    pflagx.CallerSkip = -1
-    pflagx.Init(rootCmd, &config.CfgFile)
+	cobra.OnInitialize(config.Init)
+	pflagx.CallerSkip = -1
+	pflagx.Init(rootCmd, &config.CfgFile)
 }
 
 func main() {
-    log := logx.WithName(context.TODO(), "Main")
-    rootCmd.AddCommand(cmdx.Version(&config.Version, &config.Revision, &config.Built))
-    if err := rootCmd.Execute(); err != nil {
-        log.Error(err, "exec command failed")
-        OsExit(1)
-    }
+	log := logx.WithName(context.TODO(), "Main")
+	rootCmd.AddCommand(cmdx.Version(&config.Version, &config.Revision, &config.Built))
+	if err := rootCmd.Execute(); err != nil {
+		log.Error(err, "exec command failed")
+		OsExit(1)
+	}
 }
 
 func ciops(_ *cobra.Command, _ []string) {
-    log := logx.WithName(context.TODO(), "setup")
-    if viper.ConfigFileUsed() == "" {
-        log.Info("no configuration file set")
-    }
-    log.Info("start service", "Version", config.Version, "Built",
-        config.Built, "Revision", config.Revision)
+	log := logx.WithName(context.TODO(), "setup")
+	if viper.ConfigFileUsed() == "" {
+		log.Info("no configuration file set")
+	}
+	log.Info("start service", "Version", config.Version, "Built",
+		config.Built, "Revision", config.Revision)
 
-    mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-        Scheme:                        scheme,
-        MetricsBindAddress:            viper.GetString(config.ViperKeyMetricsListen),
-        Port:                          9443,
-        HealthProbeBindAddress:        viper.GetString(config.ViperKeyProbListen),
-        LeaderElection:                viper.GetBool(config.ViperKeyEnableLeader),
-        LeaderElectionID:              "ciops.w6d.io",
-        LeaderElectionReleaseOnCancel: true,
-        Namespace:                     viper.GetString(config.ViperKeyNamespace),
-    })
-    if err != nil {
-        log.Error(err, "unable to start manager")
-        OsExit(1)
-    }
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+		Scheme:                        scheme,
+		MetricsBindAddress:            viper.GetString(config.ViperKeyMetricsListen),
+		Port:                          9443,
+		HealthProbeBindAddress:        viper.GetString(config.ViperKeyProbListen),
+		LeaderElection:                viper.GetBool(config.ViperKeyEnableLeader),
+		LeaderElectionID:              "ciops.w6d.io",
+		LeaderElectionReleaseOnCancel: true,
+		Namespace:                     viper.GetString(config.ViperKeyNamespace),
+	})
+	if err != nil {
+		log.Error(err, "unable to start manager")
+		OsExit(1)
+	}
 
-    if err = (&controllers.EventReconciler{
-        Client: mgr.GetClient(),
-        Scheme: mgr.GetScheme(),
-    }).SetupWithManager(mgr); err != nil {
-        log.Error(err, "unable to create controller", "controller", "Event")
-        os.Exit(1)
-    }
-    //+kubebuilder:scaffold:builder
+	if err = (&controllers.EventReconciler{
+		Client:      mgr.GetClient(),
+		EventScheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		log.Error(err, "unable to create controller", "controller", "Event")
+		os.Exit(1)
+	}
+	//+kubebuilder:scaffold:builder
 
-    if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
-        log.Error(err, "unable to set up health check")
-        OsExit(1)
-    }
-    if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
-        log.Error(err, "unable to set up ready check")
-        OsExit(1)
-    }
+	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
+		log.Error(err, "unable to set up health check")
+		OsExit(1)
+	}
+	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
+		log.Error(err, "unable to set up ready check")
+		OsExit(1)
+	}
 
-    log.Info("starting manager")
-    if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
-        log.Error(err, "problem running manager")
-        OsExit(1)
-    }
+	log.Info("starting manager")
+	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+		log.Error(err, "problem running manager")
+		OsExit(1)
+	}
 }

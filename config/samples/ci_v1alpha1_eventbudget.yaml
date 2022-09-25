@@ -1,0 +1,6 @@
+apiVersion: ci.w6d.io/v1alpha1
+kind: EventBudget
+metadata:
+  name: eventbudget-sample
+spec:
+  # TODO(user): Add fields here

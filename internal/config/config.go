@@ -34,123 +34,123 @@ import (
 )
 
 var (
-    // Version of application
-    Version string
+	// Version of application
+	Version string
 
-    // Revision is the commit of this version
-    Revision string
+	// Revision is the commit of this version
+	Revision string
 
-    // Built is the timestamp od this version
-    Built string
+	// Built is the timestamp od this version
+	Built string
 
-    // CfgFile contain the path of the config file
-    CfgFile string
+	// CfgFile contain the path of the config file
+	CfgFile string
 
-    // OsExit is hack for unit-test
-    OsExit = os.Exit
+	// OsExit is hack for unit-test
+	OsExit = os.Exit
 
-    // SkipValidation toggling the config validation
-    SkipValidation bool
+	// SkipValidation toggling the config validation
+	SkipValidation bool
 )
 
 func setDefault() {
-    viper.SetDefault(ViperKeyMetricsListen, ":8080")
-    viper.SetDefault(ViperKeyProbListen, ":8081")
-    viper.SetDefault(ViperKeyNamespace, false)
-    viper.SetDefault(ViperKeyPipelinerunPrefix, "pipelinerun")
+	viper.SetDefault(ViperKeyMetricsListen, ":8080")
+	viper.SetDefault(ViperKeyProbListen, ":8081")
+	viper.SetDefault(ViperKeyNamespace, false)
+	viper.SetDefault(ViperKeyPipelinerunPrefix, "pipelinerun")
 }
 
 // FileNameWithoutExtension returns the
 func FileNameWithoutExtension(fileName string) string {
-    return strings.TrimSuffix(fileName, filepath.Ext(fileName))
+	return strings.TrimSuffix(fileName, filepath.Ext(fileName))
 }
 
 func Init() {
-    base := filepath.Base(CfgFile)
-    log := logx.WithName(nil, "Config.Init")
-    ext := filepath.Ext(CfgFile)
-    log.V(2).Info("viper",
-        "path", CfgFile,
-        "ext", filepath.Ext(CfgFile),
-        "type", strings.TrimLeft(ext, "."),
-        "configName", FileNameWithoutExtension(base),
-        "base", base,
-        "dir", filepath.Dir(CfgFile),
-    )
-    setDefault()
-    viper.SetConfigName(FileNameWithoutExtension(base))
-    viper.SetConfigType(strings.TrimLeft(ext, "."))
-    viper.AddConfigPath(filepath.Dir(CfgFile))
-    viper.AddConfigPath(".")
-    viper.AddConfigPath("$HOME/.ciops")
-    viper.SetEnvPrefix("ciops")
-    viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-    viper.AutomaticEnv()
-    if err := viper.ReadInConfig(); err != nil {
-        if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-            logx.WithName(context.TODO(), "Config").Error(err, "failed to read config")
-            OsExit(1)
-            return
-        }
-        log.Error(err, "config not found")
-        return
-    }
-    var c map[string]interface{}
-    cmdx.Should(viper.Unmarshal(&c), "unmarshal config failed")
-    if !SkipValidation {
-        log.Info("run config validation")
-        cmdx.Must(jsonschema.AddSchema(jsonschema.Config, embedx.ConfigSchema), "add config schema failed")
-        cmdx.Must(jsonschema.Config.Validate(&c), "config validation failed")
-    }
-    cmdx.Must(hookSubscription(), "hook subscription failed")
-    extraConfigJson(ViperKeyPipelinerunPodTemplate, &pipelineruns.PodTemplate)
-    extraConfigJson(ViperKeyPipelinerunWorkspaces, &pipelineruns.Workspace)
-    pipelineruns.PipelinerunPrefix = viper.GetString(ViperKeyPipelinerunPrefix)
+	base := filepath.Base(CfgFile)
+	log := logx.WithName(nil, "Config.Init")
+	ext := filepath.Ext(CfgFile)
+	log.V(2).Info("viper",
+		"path", CfgFile,
+		"ext", filepath.Ext(CfgFile),
+		"type", strings.TrimLeft(ext, "."),
+		"configName", FileNameWithoutExtension(base),
+		"base", base,
+		"dir", filepath.Dir(CfgFile),
+	)
+	setDefault()
+	viper.SetConfigName(FileNameWithoutExtension(base))
+	viper.SetConfigType(strings.TrimLeft(ext, "."))
+	viper.AddConfigPath(filepath.Dir(CfgFile))
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("$HOME/.ciops")
+	viper.SetEnvPrefix("ciops")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.AutomaticEnv()
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+			logx.WithName(context.TODO(), "Config").Error(err, "failed to read config")
+			OsExit(1)
+			return
+		}
+		log.Error(err, "config not found")
+		return
+	}
+	var c map[string]interface{}
+	cmdx.Should(viper.Unmarshal(&c), "unmarshal config failed")
+	if !SkipValidation {
+		log.Info("run config validation")
+		cmdx.Must(jsonschema.AddSchema(jsonschema.Config, embedx.ConfigSchema), "add config schema failed")
+		cmdx.Must(jsonschema.Config.Validate(&c), "config validation failed")
+	}
+	cmdx.Must(hookSubscription(), "hook subscription failed")
+	extraConfigJson(ViperKeyPipelinerunPodTemplate, &pipelineruns.PodTemplate)
+	extraConfigJson(ViperKeyPipelinerunWorkspaces, &pipelineruns.Workspace)
+	pipelineruns.PipelinerunPrefix = viper.GetString(ViperKeyPipelinerunPrefix)
 }
 
 func extraConfigJson(key string, rawVar interface{}) {
-    extraFile := viper.GetString(key)
-    logx.WithName(nil, "extraConfig").V(2).Info("parameters", "key", key, "extraFile", extraFile)
-    if extraFile != "" {
-        base := filepath.Base(extraFile)
-        ext := filepath.Ext(extraFile)
-        cfg := viper.New()
-        cfg.SetConfigName(FileNameWithoutExtension(base))
-        cfg.SetConfigType(strings.TrimLeft(ext, "."))
-        cfg.AddConfigPath(filepath.Dir(extraFile))
-        if err := cfg.ReadInConfig(); err != nil {
-            logx.WithName(context.TODO(), "loading").Info("config", "key", key, "extraFile", extraFile)
-            cmdx.Should(err, "fail to read config")
-        } else {
-            logx.WithName(context.TODO(), "loading").Info("config", "key", key, "extraFile", extraFile)
-            cmdx.Should(convert(extraFile, rawVar), "load config failed")
-        }
-        cfg.WatchConfig()
-        cfg.OnConfigChange(func(in fsnotify.Event) {
-            logx.WithName(context.TODO(), "reloading").Info("config", "key", key, "extraFile", extraFile)
-            cmdx.Should(convert(extraFile, rawVar), "load config failed")
-        })
-    }
+	extraFile := viper.GetString(key)
+	logx.WithName(nil, "extraConfig").V(2).Info("parameters", "key", key, "extraFile", extraFile)
+	if extraFile != "" {
+		base := filepath.Base(extraFile)
+		ext := filepath.Ext(extraFile)
+		cfg := viper.New()
+		cfg.SetConfigName(FileNameWithoutExtension(base))
+		cfg.SetConfigType(strings.TrimLeft(ext, "."))
+		cfg.AddConfigPath(filepath.Dir(extraFile))
+		if err := cfg.ReadInConfig(); err != nil {
+			logx.WithName(context.TODO(), "loading").Info("config", "key", key, "extraFile", extraFile)
+			cmdx.Should(err, "fail to read config")
+		} else {
+			logx.WithName(context.TODO(), "loading").Info("config", "key", key, "extraFile", extraFile)
+			cmdx.Should(convert(extraFile, rawVar), "load config failed")
+		}
+		cfg.WatchConfig()
+		cfg.OnConfigChange(func(in fsnotify.Event) {
+			logx.WithName(context.TODO(), "reloading").Info("config", "key", key, "extraFile", extraFile)
+			cmdx.Should(convert(extraFile, rawVar), "load config failed")
+		})
+	}
 }
 func convert(extraFile string, target interface{}) error {
-    yamlFile, err := os.ReadFile(extraFile)
+	yamlFile, err := os.ReadFile(extraFile)
 
-    if err != nil {
-        return err
-    } else {
-        var tmp map[string]interface{}
-        err = yaml.Unmarshal(yamlFile, &tmp)
-        if err != nil {
-            return err
-        }
-        d, err := json.Marshal(&tmp)
-        if err != nil {
-            return err
-        }
-        err = json.Unmarshal(d, &target)
-        if err != nil {
-            return err
-        }
-    }
-    return nil
+	if err != nil {
+		return err
+	} else {
+		var tmp map[string]interface{}
+		err = yaml.Unmarshal(yamlFile, &tmp)
+		if err != nil {
+			return err
+		}
+		d, err := json.Marshal(&tmp)
+		if err != nil {
+			return err
+		}
+		err = json.Unmarshal(d, &target)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

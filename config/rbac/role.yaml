@@ -1,0 +1,59 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: ciops-role
+rules:
+- apiGroups:
+  - ci.w6d.io
+  resources:
+  - events
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ci.w6d.io
+  resources:
+  - events/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ci.w6d.io
+  resources:
+  - events/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - v1beta1.tekton.dev
+  resources:
+  - pipelineruns
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - v1beta1.tekton.dev
+  resources:
+  - pipelineruns/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - v1beta1.tekton.dev
+  resources:
+  - pipelineruns/status
+  verbs:
+  - get
+  - patch
+  - update

@@ -3,6 +3,7 @@ BUILD_DATE = $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 VCS_REF    = $(shell git rev-parse HEAD)
 
 export NEXT_TAG     ?=
+export CGO_ENABLED   = 1
 
 # Image URL to use all building/pushing image targets
 IMG ?= ciops:$(VERSION)
@@ -14,6 +15,24 @@ ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin
 else
 GOBIN=$(shell go env GOBIN)
+endif
+
+ifeq (,$(shell go env GOOS))
+GOOS=$(shell echo $OS)
+else
+GOOS=$(shell go env GOOS)
+endif
+
+ifeq (,$(shell go env GOARCH))
+GOARCH=$(shell echo uname -p)
+else
+GOARCH=$(shell go env GOARCH)
+endif
+
+ifeq (darwin,$(GOOS))
+GOTAGS = "-tags=dynamic"
+else
+GOTAGS =
 endif
 
 # Setting SHELL to bash allows bash commands to be executed by recipes.
@@ -57,24 +76,24 @@ fmt: ## Run go fmt against code.
 
 .PHONY: vet
 vet: ## Run go vet against code.
-	go vet ./...
+	go vet $(GOTAGS) ./...
 
 .PHONY: test
 test: manifests generate fmt vet envtest ## Run tests.
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test ./... -coverprofile cover.out
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test $(GOTAGS) ./... -coverprofile cover.out
 
 ##@ Build
 
 .PHONY: build
 build: generate fmt vet ## Build ciops binary.
-	go build \
-       -ldflags="-X 'gitlab.w6d.io/w6d/ciops/internal/config.Version=${VERSION}' -X 'gitlab.w6d.io/w6d/ciops/internal/config.Revision=${VCS_REF}' -X 'gitlab.w6d.io/w6d/ciops/internal/config.Built=${BUILD_DATE}'" \
+	go build $(GOTAGS) \
+       -ldflags="-X 'github.com/w6d-io/ciops/internal/config.Version=${VERSION}' -X 'github.com/w6d-io/ciops/internal/config.Revision=${VCS_REF}' -X 'github.com/w6d-io/ciops/internal/config.Built=${BUILD_DATE}'" \
        -o bin/ciops main.go
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
-	go run \
-       -ldflags="-X 'gitlab.w6d.io/w6d/ciops/internal/config.Version=${VERSION}' -X 'gitlab.w6d.io/w6d/ciops/internal/config.Revision=${VCS_REF}' -X 'gitlab.w6d.io/w6d/ciops/internal/config.Built=${BUILD_DATE}'" \
+	go run $(GOTAGS) \
+       -ldflags="-X 'github.com/w6d-io/ciops/internal/config.Version=${VERSION}' -X 'github.com/w6d-io/ciops/internal/config.Revision=${VCS_REF}' -X 'github.com/w6d-io/ciops/internal/config.Built=${BUILD_DATE}'" \
        ./main.go
 
 .PHONY: docker-build

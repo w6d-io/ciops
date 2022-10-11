@@ -18,7 +18,7 @@ package controllers
 
 import (
 	"context"
-	"gitlab.w6d.io/w6d/ciops/internal/pipelineruns"
+	"github.com/w6d-io/ciops/internal/pipelineruns"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -33,14 +33,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
+	"github.com/w6d-io/ciops/api/v1alpha1"
 	"github.com/w6d-io/x/logx"
-	"gitlab.w6d.io/w6d/ciops/api/v1alpha1"
 )
 
 // EventReconciler reconciles a Event object
 type EventReconciler struct {
-	client.Client
-	EventScheme *runtime.Scheme
+    client.Client
+    EventScheme *runtime.Scheme
 }
 
 //+kubebuilder:rbac:groups=ci.w6d.io,resources=events,verbs=get;list;watch;create;update;patch;delete
@@ -51,117 +51,118 @@ type EventReconciler struct {
 //+kubebuilder:rbac:groups=v1beta1.tekton.dev,resources=pipelineruns/finalizers,verbs=update
 
 func (r *EventReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	correlationID := uuid.New().String()
-	ctx = context.WithValue(ctx, logx.CorrelationID, correlationID)
-	log := logx.WithName(ctx, "Reconcile").WithValues("event", req.NamespacedName.String())
-	var err error
+    correlationID := uuid.New().String()
+    ctx = context.WithValue(ctx, logx.CorrelationID, correlationID)
+    log := logx.WithName(ctx, "Reconcile").WithValues("event", req.NamespacedName.String())
+    var err error
 
-	e := new(v1alpha1.Event)
-	if err = r.Get(ctx, req.NamespacedName, e); err != nil {
-		if errors.IsNotFound(err) {
-			log.Info("Event resource not found, Ignore since object must be deleted")
-			return ctrl.Result{}, nil
-		}
-		log.Error(err, "failed to get Event")
-		return ctrl.Result{}, err
-	}
-	status := v1alpha1.EventStatus{PipelineRunName: pipelineruns.GetPipelinerunName(*e.Spec.EventID)}
-	var childPr tkn.PipelineRun
-	err = r.Get(ctx, types.NamespacedName{Namespace: req.Namespace}, &childPr)
-	if client.IgnoreNotFound(err) != nil {
-		log.Error(err, "Unable to get PipelineRun")
-		return ctrl.Result{}, err
-	}
-	if !errors.IsNotFound(err) {
-		status.State = pipelineruns.Condition(childPr.Status.Conditions)
-		status.Message = pipelineruns.Message(childPr.Status.Conditions)
-		if err := r.UpdateStatus(ctx, req.NamespacedName, status); err != nil {
-			log.Error(err, "unable to update Play status")
-			return ctrl.Result{Requeue: true}, err
-		}
-		return ctrl.Result{Requeue: false}, nil
-	}
-	log.V(1).Info("pipelinerun not found")
-	log.V(1).Info("getting all pipeline run")
+    e := new(v1alpha1.Event)
+    if err = r.Get(ctx, req.NamespacedName, e); err != nil {
+        if errors.IsNotFound(err) {
+            log.Info("Event resource not found, Ignore since object must be deleted")
+            return ctrl.Result{}, nil
+        }
+        log.Error(err, "failed to get Event")
+        return ctrl.Result{}, err
+    }
+    status := v1alpha1.EventStatus{PipelineRunName: pipelineruns.GetPipelinerunName(*e.Spec.EventID)}
+    var childPr tkn.PipelineRun
+    err = r.Get(ctx, types.NamespacedName{Namespace: req.Namespace}, &childPr)
+    if client.IgnoreNotFound(err) != nil {
+        log.Error(err, "Unable to get PipelineRun")
+        return ctrl.Result{}, err
+    }
+    if !errors.IsNotFound(err) {
+        status.State = pipelineruns.Condition(childPr.Status.Conditions)
+        status.Message = pipelineruns.Message(childPr.Status.Conditions)
+        if err := r.UpdateStatus(ctx, req.NamespacedName, status); err != nil {
+            log.Error(err, "unable to update Play status")
+            return ctrl.Result{Requeue: true}, err
+        }
+        return ctrl.Result{Requeue: false}, nil
+    }
+    log.V(1).Info("pipelinerun not found")
+    log.V(1).Info("getting all pipeline run")
 
-	if err = r.checkConcurrency(ctx, req.NamespacedName, pipelineruns.GetPipelinerunName(*e.Spec.EventID)); err != nil {
-		return ctrl.Result{Requeue: true}, err
-	}
+    if err = r.checkConcurrency(ctx, req.NamespacedName, pipelineruns.GetPipelinerunName(*e.Spec.EventID)); err != nil {
+        return ctrl.Result{Requeue: true}, err
+    }
 
-	if err = pipelineruns.Build(ctx, r, e); err != nil {
-		log.Error(err, "failed to create pipelinerun")
-		log.V(1).Info("update status", "status", v1alpha1.Errored,
-			"step", "5")
-		status.State = v1alpha1.Errored
-		status.Message = err.Error()
-		if err := r.UpdateStatus(ctx, req.NamespacedName, status); err != nil {
-			return ctrl.Result{Requeue: true}, err
-		}
-		return ctrl.Result{Requeue: true}, err
-	}
-	log.V(1).Info("update status", "status", v1alpha1.Pending, "step", "6")
-	status.State = v1alpha1.Pending
-	if err = r.UpdateStatus(ctx, req.NamespacedName, status); err != nil {
-		log.Error(err, "update status failed")
-		return ctrl.Result{Requeue: true}, err
-	}
-	return ctrl.Result{Requeue: false}, nil
+    if err = pipelineruns.Build(ctx, r, e); err != nil {
+        log.Error(err, "failed to create pipelinerun")
+        log.V(1).Info("update status", "status", v1alpha1.Errored,
+            "step", "5")
+        status.State = v1alpha1.Errored
+        status.Message = err.Error()
+        if err := r.UpdateStatus(ctx, req.NamespacedName, status); err != nil {
+            return ctrl.Result{Requeue: true}, err
+        }
+        return ctrl.Result{Requeue: true}, err
+    }
+    log.V(1).Info("update status", "status", v1alpha1.Pending, "step", "6")
+    status.State = v1alpha1.Pending
+    if err = r.UpdateStatus(ctx, req.NamespacedName, status); err != nil {
+        log.Error(err, "update status failed")
+        return ctrl.Result{Requeue: true}, err
+    }
+    return ctrl.Result{Requeue: false}, nil
 }
 
 func (r *EventReconciler) GetStatus(state v1alpha1.State) metav1.ConditionStatus {
-	switch state {
-	case v1alpha1.Errored, v1alpha1.Cancelled, v1alpha1.Failed:
-		return metav1.ConditionFalse
-	case v1alpha1.Succeeded:
-		return metav1.ConditionTrue
-	default:
-		return metav1.ConditionUnknown
-	}
+    switch state {
+    case v1alpha1.Errored, v1alpha1.Cancelled, v1alpha1.Failed:
+        return metav1.ConditionFalse
+    case v1alpha1.Succeeded:
+        return metav1.ConditionTrue
+    default:
+        return metav1.ConditionUnknown
+    }
 }
+
 func (r *EventReconciler) UpdateStatus(ctx context.Context, nn types.NamespacedName, status v1alpha1.EventStatus) error {
-	log := logx.WithName(ctx, "EventReconciler.UpdateStatus")
-	log.V(1).Info("update status")
-	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		e := &v1alpha1.Event{}
-		err := r.Get(ctx, nn, e)
-		if err != nil {
-			return err
-		}
-		e.Status.State = status.State
-		e.Status.Message = status.Message
-		e.Status.PipelineRunName = status.PipelineRunName
-		meta.SetStatusCondition(&e.Status.Conditions, metav1.Condition{
-			Type:    string(status.State),
-			Status:  r.GetStatus(status.State),
-			Reason:  string(status.State),
-			Message: status.Message,
-		})
-		err = r.Status().Update(ctx, e)
-		return nil
-	})
-	return err
+    log := logx.WithName(ctx, "EventReconciler.UpdateStatus")
+    log.V(1).Info("update status")
+    err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+        e := &v1alpha1.Event{}
+        err := r.Get(ctx, nn, e)
+        if err != nil {
+            return err
+        }
+        e.Status.State = status.State
+        e.Status.Message = status.Message
+        e.Status.PipelineRunName = status.PipelineRunName
+        meta.SetStatusCondition(&e.Status.Conditions, metav1.Condition{
+            Type:    string(status.State),
+            Status:  r.GetStatus(status.State),
+            Reason:  string(status.State),
+            Message: status.Message,
+        })
+        err = r.Status().Update(ctx, e)
+        return nil
+    })
+    return err
 }
 
 func IgnoreNotExists(err error) error {
-	if err == nil ||
-		(strings.HasPrefix(err.Error(), "Index with name field:") &&
-			strings.HasSuffix(err.Error(), "does not exist")) {
-		return nil
-	}
-	return err
+    if err == nil ||
+        (strings.HasPrefix(err.Error(), "Index with name field:") &&
+            strings.HasSuffix(err.Error(), "does not exist")) {
+        return nil
+    }
+    return err
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *EventReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.Event{}).
-		Owns(&tkn.PipelineRun{}).
-		WithOptions(controller.Options{
-			MaxConcurrentReconciles: 10,
-		}).
-		Complete(r)
+    return ctrl.NewControllerManagedBy(mgr).
+        For(&v1alpha1.Event{}).
+        Owns(&tkn.PipelineRun{}).
+        WithOptions(controller.Options{
+            MaxConcurrentReconciles: 10,
+        }).
+        Complete(r)
 }
 
 func (r *EventReconciler) Scheme() *runtime.Scheme {
-	return r.EventScheme
+    return r.EventScheme
 }

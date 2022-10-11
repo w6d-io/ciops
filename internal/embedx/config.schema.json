@@ -22,6 +22,19 @@
         "127.0.0.1:6831",
         ":4321"
       ]
+    },
+    "hook": {
+      "type": "object",
+      "required": ["url", "scope"],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "scope": {
+          "type": "string"
+        }
+      }
     }
   },
   "properties": {
@@ -44,8 +57,35 @@
     "namespace": {
       "type": "string"
     },
-    "pipeline_prefix": {
-      "type": "string"
+    "hooks": {
+      "type": ["array","null"],
+      "items": {
+        "$ref": "#/definitions/hook"
+      }
+    },
+    "pipelinerun": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "prefix" : {
+          "type": "string"
+        },
+        "podTemplate": {
+          "type": "object"
+        },
+        "workspaces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
     }
   },
   "additionalProperties": false

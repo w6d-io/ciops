@@ -16,23 +16,23 @@ Created on 21/09/2022
 package config_test
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-	"github.com/spf13/viper"
+    . "github.com/onsi/ginkgo"
+    . "github.com/onsi/gomega"
+    "github.com/spf13/viper"
 
-	"gitlab.w6d.io/w6d/ciops/internal/config"
+    "github.com/w6d-io/ciops/internal/config"
 )
 
 var _ = Describe("Config", func() {
-	Context("", func() {
-		BeforeEach(func() {
-			config.SkipValidation = true
-			viper.Reset()
-		})
-		AfterEach(func() {
-		})
-		It("", func() {
-			Expect("").To(Equal(""))
-		})
-	})
+    Context("", func() {
+        BeforeEach(func() {
+            config.SkipValidation = true
+            viper.Reset()
+        })
+        AfterEach(func() {
+        })
+        It("", func() {
+            Expect("").To(Equal(""))
+        })
+    })
 })

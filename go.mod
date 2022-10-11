@@ -1,17 +1,20 @@
-module gitlab.w6d.io/w6d/ciops
+module github.com/w6d-io/ciops
 
 go 1.18
 
 require (
+	github.com/fsnotify/fsnotify v1.5.1
 	github.com/google/uuid v1.3.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.20.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.9.0
 	github.com/tektoncd/pipeline v0.40.0
+	github.com/w6d-io/hook v0.3.0
 	github.com/w6d-io/jsonschema v0.1.2
 	github.com/w6d-io/x v0.13.8
 	go.uber.org/zap v1.23.0
+	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.24.3
 	k8s.io/apimachinery v0.24.3
 	k8s.io/client-go v0.24.3
@@ -31,17 +34,18 @@ require (
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
+	github.com/avast/retry-go v3.0.0+incompatible // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blendle/zapdriver v1.3.1 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/confluentinc/confluent-kafka-go v1.7.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgraph-io/ristretto v0.0.3 // indirect
 	github.com/emicklei/go-restful v2.16.0+incompatible // indirect
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
-	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/go-kit/kit v0.10.0 // indirect
 	github.com/go-kit/log v0.1.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
@@ -130,7 +134,6 @@ require (
 	gopkg.in/ini.v1 v1.63.2 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apiextensions-apiserver v0.24.2 // indirect
 	k8s.io/component-base v0.24.2 // indirect
 	k8s.io/klog/v2 v2.70.2-0.20220707122935-0990e81f1a8f // indirect

@@ -1,0 +1,341 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: (unknown)
+  creationTimestamp: null
+  name: events.ci.w6d.io
+spec:
+  group: ci.w6d.io
+  names:
+    kind: Event
+    listKind: EventList
+    plural: events
+    singular: event
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.state
+      name: State
+      type: string
+    - jsonPath: .status.pipelineRunName
+      name: PipelineRun
+      priority: 1
+      type: string
+    - jsonPath: .status.message
+      name: Message
+      priority: 1
+      type: string
+    - description: CreationTimestamp is a timestamp representing the server time when
+        this object was created. It is not guaranteed to be set in happens-before
+        order across separate operations. Clients may not set this value. It is represented
+        in RFC3339 form and is in UTC.
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Event is the Schema for the events API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: EventSpec defines the desired state of Event
+            properties:
+              added:
+                description: Added is the list of files that have been added in this
+                  commit
+                items:
+                  type: string
+                type: array
+              beforeSha:
+                description: BeforeSha is the previous commit sha for this event
+                type: string
+              commit:
+                description: Commit project for this event
+                type: string
+              commitMessage:
+                description: CommitMessage is the message of this commit event
+                type: string
+              eventId:
+                description: EventID id of the event
+                format: int64
+                type: integer
+              modified:
+                description: Modified is the list of files that have been modified
+                  in this commit
+                items:
+                  type: string
+                type: array
+              pipeline:
+                description: Pipeline is the pipeline payload
+                properties:
+                  artifacts:
+                    type: boolean
+                  commit:
+                    properties:
+                      id:
+                        type: string
+                      message:
+                        type: string
+                      ref:
+                        type: string
+                    type: object
+                  complete:
+                    type: boolean
+                  endTime:
+                    format: int64
+                    type: integer
+                  eventId:
+                    type: string
+                  force:
+                    type: boolean
+                  id:
+                    type: string
+                  logUri:
+                    type: string
+                  name:
+                    type: string
+                  pipelineIdNumber:
+                    type: string
+                  projectId:
+                    format: int64
+                    type: integer
+                  stages:
+                    items:
+                      properties:
+                        endTime:
+                          format: int64
+                          type: integer
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        startTime:
+                          format: int64
+                          type: integer
+                        status:
+                          type: string
+                        tasks:
+                          items:
+                            properties:
+                              actions:
+                                items:
+                                  properties:
+                                    componentId:
+                                      type: string
+                                    data:
+                                      additionalProperties:
+                                        type: string
+                                      type: object
+                                    endTime:
+                                      format: int64
+                                      type: integer
+                                    environments:
+                                      additionalProperties:
+                                        type: string
+                                      description: Params       map[string]interface{}
+                                        `json:"params,omitempty"`
+                                      type: object
+                                    id:
+                                      type: string
+                                    name:
+                                      type: string
+                                    ref:
+                                      type: string
+                                    startTime:
+                                      format: int64
+                                      type: integer
+                                    status:
+                                      type: string
+                                  type: object
+                                type: array
+                              conditions:
+                                items:
+                                  items:
+                                    properties:
+                                      id:
+                                        type: string
+                                      ref:
+                                        type: string
+                                      type:
+                                        type: string
+                                      when:
+                                        type: string
+                                    type: object
+                                  type: array
+                                type: array
+                              endTime:
+                                format: int64
+                                type: integer
+                              id:
+                                type: string
+                              name:
+                                type: string
+                              skipOnFailure:
+                                type: boolean
+                              startTime:
+                                format: int64
+                                type: integer
+                              status:
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  startTime:
+                    format: int64
+                    type: integer
+                  status:
+                    type: string
+                  triggerId:
+                    type: string
+                  type:
+                    type: string
+                type: object
+              pipelineRef:
+                description: PipelineRef is the id pipeline resource name
+                type: string
+              projectId:
+                description: ProjectID id of the project
+                format: int64
+                type: integer
+              projectName:
+                description: ProjectName name of project
+                type: string
+              projectUrl:
+                description: ProjectURL url of the project
+                type: string
+              providerId:
+                description: ProviderId is the id of the provider that send this event
+                type: string
+              ref:
+                description: Ref is project reference for this event
+                type: string
+              removed:
+                description: Removed is the list of files that have been removed in
+                  this commit
+                items:
+                  type: string
+                type: array
+              token:
+                description: TODO to delete token for cloning Deprecated
+                type: string
+              trigger:
+                description: Trigger
+                properties:
+                  id:
+                    type: string
+                  ref:
+                    type: string
+                  type:
+                    type: string
+                type: object
+              userId:
+                description: UserId is the user id from the repository
+                type: string
+            required:
+            - pipelineRef
+            type: object
+          status:
+            description: EventStatus defines the observed state of Event
+            properties:
+              conditions:
+                description: Conditions represents the latest available observations
+                  of play
+                items:
+                  description: "Condition contains details for one aspect of the current
+                    state of this API Resource. --- This struct is intended for direct
+                    use as an array at the field path .status.conditions.  For example,
+                    type FooStatus struct{ // Represents the observations of a foo's
+                    current state. // Known .status.conditions.type are: \"Available\",
+                    \"Progressing\", and \"Degraded\" // +patchMergeKey=type // +patchStrategy=merge
+                    // +listType=map // +listMapKey=type Conditions []metav1.Condition
+                    `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
+                    protobuf:\"bytes,1,rep,name=conditions\"` \n // other fields }"
+                  properties:
+                    lastTransitionTime:
+                      description: lastTransitionTime is the last time the condition
+                        transitioned from one status to another. This should be when
+                        the underlying condition changed.  If that is not known, then
+                        using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: message is a human readable message indicating
+                        details about the transition. This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: observedGeneration represents the .metadata.generation
+                        that the condition was set based upon. For instance, if .metadata.generation
+                        is currently 12, but the .status.conditions[x].observedGeneration
+                        is 9, the condition is out of date with respect to the current
+                        state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: reason contains a programmatic identifier indicating
+                        the reason for the condition's last transition. Producers
+                        of specific condition types may define expected values and
+                        meanings for this field, and whether the values are considered
+                        a guaranteed API. The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                        --- Many .condition.type values are consistent across resources
+                        like Available, but because arbitrary conditions can be useful
+                        (see .node.status.conditions), the ability to deconflict is
+                        important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              message:
+                description: Message contains the pipeline message
+                type: string
+              pipelineRunName:
+                description: PipelineRunName contains the pipeline run name created
+                  by play
+                type: string
+              state:
+                description: State contains the current state of this Play resource.
+                  States Running, Failed, Succeeded, Errored
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

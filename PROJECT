@@ -5,7 +5,7 @@ plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: ciops
-repo: gitlab.w6d.io/w6d/ciops
+repo: github.com/w6d-io/ciops
 resources:
 - api:
     crdVersion: v1
@@ -14,7 +14,7 @@ resources:
   domain: w6d.io
   group: ci
   kind: Event
-  path: gitlab.w6d.io/w6d/ciops/api/v1alpha1
+  path: github.com/w6d-io/ciops/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -22,6 +22,6 @@ resources:
   domain: w6d.io
   group: ci
   kind: EventBudget
-  path: gitlab.w6d.io/w6d/ciops/api/v1alpha1
+  path: github.com/w6d-io/ciops/api/v1alpha1
   version: v1alpha1
 version: "3"

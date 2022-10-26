@@ -3,4 +3,138 @@ kind: Event
 metadata:
   name: event-sample
 spec:
-  # TODO(user): Add fields here
+  beforeSha: bc630138599a51ca72f22a91bb4340ccdd5bd2db
+  commit: 4e0a9786d4e5ccfbfdc5b7dc814193c3f0ea9f24
+  commitMessage: "test"
+  eventId: 16
+  pipelineRef: pipeline-1374490178-1
+  projectId: 1374490178
+  projectName: "testw6d"
+  projectUrl: https://github.com/david972/testw6d
+  providerId: "github"
+  ref: "refs/heads/main"
+  modified:
+    - README.md
+  userId: "9482408"
+  trigger:
+    ref: trigger
+    id: trigger
+    type: "push"
+  pipeline:
+    id: pipeline-1374490178-1
+    type: standard
+    pipelineIdNumber: '1'
+    projectId: 1374490178
+    name: ''
+    triggers:
+      - id: trigger-1374490178-1-1659469161
+        ref: github_webhook
+        type: git
+        componentId: component-ml-1374490178-1
+        data:
+          _configData: '{"component":"component-ml-1374490178-1","types":"github_webhook","events":"repository_push","fields":[{"id":"repository_branch","name":"master","value":"master","target":"branch"}]}'
+          branch: master
+          eventType: Push
+          providerId: github
+      - id: trigger-1374490178-1-1659470006
+        ref: github_webhook
+        type: git
+        componentId: component-ml-1374490178-1
+        data:
+          _configData: '{"component":"component-ml-1374490178-1","types":"github_webhook","events":"repository_push","fields":[{"id":"repository_branch","name":"main","value":"main","target":"branch"}]}'
+          branch: main
+          eventType: Push
+          providerId: github
+    stages:
+      - id: stage-1374490178-1-1659469177
+        name: Stage 1
+        tasks:
+          - id: task-1374490178-1-1659469168
+            name: leaks
+            skipOnFailure: false
+            conditions: [ ]
+            actions:
+              - id: action-1374490178-1-1659469182
+                name: leaks
+                componentId: component-ml-1374490178-1
+                ref: gitleaks
+                data: {}
+                params:
+                  skipOnFailure: "true"
+                environments: { }
+                startTime: 0
+                status: ''
+                endTime: 0
+            startTime: 0
+            status: ''
+            endTime: 0
+        status: ''
+        endTime: 0
+        startTime: 0
+      - id: stage-1374490178-1-1659469254
+        name: Stage 2
+        tasks:
+          - id: task-1374490178-1-1659469246
+            name: build
+            skipOnFailure: false
+            conditions:
+              - - id: condition-1374490178-1-1659470024
+                  ref: trigger-1374490178-1-1659470006
+                  type: trigger
+                  when: success
+            actions:
+              - id: action-1374490178-1-1659469263
+                name: build
+                componentId: component-ml-1374490178-1
+                ref: gitleaks
+                data: {}
+                params:
+                  skipOnFailure: "true"
+                environments: { }
+                status: ''
+                startTime: 0
+                endTime: 0
+            startTime: 0
+            endTime: 0
+            status: ''
+        status: ''
+        endTime: 0
+        startTime: 0
+      - id: stage-1374490178-1-1659469793
+        name: Stage 3
+        tasks:
+          - id: task-1374490178-1-1659469783
+            name: deploy
+            skipOnFailure: false
+            conditions: [ ]
+            actions:
+              - id: action-1374490178-1-1659469796
+                name: deploy
+                componentId: component-ml-1374490178-1
+                ref: gitleaks
+                data: {}
+                params:
+                  skipOnFailure: "true"
+                environments: { }
+                status: ''
+                startTime: 0
+                endTime: 0
+            startTime: 0
+            endTime: 0
+            status: ''
+        status: ''
+        endTime: 0
+        startTime: 0
+    status: Pending
+    startTime: 1664439235213
+    endTime: 0
+    logUri: ''
+    complete: true
+    force: false
+    artifacts: false
+    triggerId: trigger-1374490178-1-1659470006
+    commit:
+      id: 4e0a9786d4e5ccfbfdc5b7dc814193c3f0ea9f24
+      ref: main
+      message: test
+    eventId: '16'

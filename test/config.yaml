@@ -4,8 +4,7 @@ listen:
 webhook:
   port: 9443
 leaderElection:
-  leaderElect: true
-  resourceName: ciops.ci.w6d.io
+  leaderElect: false
 pipelinerun:
   prefix: "pipelinerun"
   workspaces:

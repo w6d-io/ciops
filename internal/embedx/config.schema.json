@@ -50,9 +50,30 @@
         }
       }
     },
-    "leader": {
-      "type": "boolean",
-      "default": false
+    "webhook": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "port": {
+          "type": "integer"
+        }
+      }
+    },
+    "leaderElection": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "leaderElect": {
+          "type": "boolean",
+          "default": false
+        },
+        "resourceName": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        }
+      }
     },
     "namespace": {
       "type": "string"
@@ -83,6 +104,25 @@
               }
             },
             "additionalProperties": true
+          }
+        },
+        "workspacePipelineTaskBinding": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "subPath", "workspace"],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "subPath": {
+                "type": "string"
+              },
+              "workspace": {
+                "type": "string"
+              }
+            }
           }
         }
       }

@@ -5,7 +5,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     control-plane: ciops
-  name: ciops-metrics-monitor
+  name: metrics-monitor
   namespace: w6d-ops
 spec:
   endpoints:

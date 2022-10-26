@@ -8,5 +8,5 @@ roleRef:
   name: leader-election-role
 subjects:
 - kind: ServiceAccount
-  name: ciops
+  name: sa
   namespace: w6d-ops

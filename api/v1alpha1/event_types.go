@@ -18,6 +18,8 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	pipeline "github.com/w6d-io/apis/pipeline/v1alpha1"
 )
 
 type Status int
@@ -61,14 +63,12 @@ type TriggerSpec struct {
 
 // EventSpec defines the desired state of Event
 type EventSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
 
 	// EventID id of the event
 	EventID *int64 `json:"eventId,omitempty"`
 
 	// ProjectID id of the project
-	ProjectID ProjectID `json:"projectId,omitempty"`
+	ProjectID pipeline.ProjectID `json:"projectId,omitempty"`
 
 	// PipelineRef is the id pipeline resource name
 	PipelineRef string `json:"pipelineRef"`
@@ -110,7 +110,7 @@ type EventSpec struct {
 	Trigger *TriggerSpec `json:"trigger,omitempty"`
 
 	// Pipeline is the pipeline payload
-	Pipeline Pipeline `json:"pipeline,omitempty"`
+	Pipeline *pipeline.Pipeline `json:"pipeline,omitempty"`
 
 	// TODO to delete token for cloning
 	// Deprecated

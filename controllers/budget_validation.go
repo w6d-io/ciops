@@ -17,12 +17,14 @@ package controllers
 
 import (
 	"context"
+
 	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
 	"github.com/w6d-io/ciops/api/v1alpha1"
 	"github.com/w6d-io/ciops/internal/pipelineruns"
 	"github.com/w6d-io/x/logx"
-	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func (r *EventReconciler) checkConcurrency(ctx context.Context, nn types.NamespacedName, pipelineName string) error {

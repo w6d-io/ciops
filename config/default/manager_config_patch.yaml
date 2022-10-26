@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ciops
+  name: server
   namespace: w6d-ops
 spec:
   template:
     spec:
       containers:
-      - name: manager
+      - name: ciops
         args:
-        - "--config=controller_manager_config.yaml"
+        - "--config=/controller_manager_config.yaml"
         volumeMounts:
-        - name: manager-config
+        - name: ciops-config
           mountPath: /controller_manager_config.yaml
           subPath: controller_manager_config.yaml
       volumes:
-      - name: manager-config
+      - name: ciops-config
         configMap:
-          name: manager-config
+          name: ciops-config

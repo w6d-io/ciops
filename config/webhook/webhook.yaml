@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhook
+  namespace: w6d-ops
+spec:
+  selector:
+    matchLabels:
+      control-plane: ciops
+  replicas: 2
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: ciops
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+      - command:
+        - /ciops
+        - webhook
+        - "--config=/webhook_config.yaml"
+        image: ciops:latest
+        name: webhook
+        ports:
+          - containerPort: 9443
+            name: webhook-server
+            protocol: TCP
+        volumeMounts:
+          - mountPath: /tmp/k8s-webhook-server/serving-certs
+            name: cert
+            readOnly: true
+          - name: webhook-config
+            mountPath: /webhook_config.yaml
+            subPath: webhook_config.yaml
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - "ALL"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 200m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+      volumes:
+        - name: cert
+          secret:
+            defaultMode: 420
+            secretName: webhook-server-cert
+        - name: webhook-config
+          configMap:
+            name: webhook-config
+      serviceAccountName: sa
+      terminationGracePeriodSeconds: 10

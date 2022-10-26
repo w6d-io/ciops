@@ -1,14 +1,12 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  labels:
-    control-plane: ciops
-  name: wd6-ops
+  name: w6d-ops
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ciops
+  name: server
   namespace: w6d-ops
   labels:
     control-plane: ciops
@@ -36,9 +34,7 @@ spec:
       containers:
       - command:
         - /ciops
-        env:
-        - name: CIOPS_LEADER
-          value: "true"
+        - serve
         image: ciops:latest
         name: ciops
         securityContext:
@@ -67,5 +63,5 @@ spec:
           requests:
             cpu: 10m
             memory: 64Mi
-      serviceAccountName: ciops
+      serviceAccountName: sa
       terminationGracePeriodSeconds: 10

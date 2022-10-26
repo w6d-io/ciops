@@ -1,0 +1,3 @@
+listen:
+  metrics: ":8080"
+  probe: ":8081"

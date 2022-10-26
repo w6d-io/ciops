@@ -18,7 +18,6 @@ package config
 import (
 	"context"
 	"encoding/json"
-	"github.com/w6d-io/ciops/internal/pipelineruns"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,6 +27,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/w6d-io/ciops/internal/embedx"
+	"github.com/w6d-io/ciops/internal/pipelineruns"
 	"github.com/w6d-io/jsonschema"
 	"github.com/w6d-io/x/cmdx"
 	"github.com/w6d-io/x/logx"
@@ -55,7 +55,9 @@ var (
 
 func setDefault() {
 	viper.SetDefault(ViperKeyMetricsListen, ":8080")
-	viper.SetDefault(ViperKeyProbListen, ":8081")
+	viper.SetDefault(ViperKeyProbeListen, ":8081")
+	viper.SetDefault(ViperKeyLeaderName, "ciops.ci.w6d.io")
+	viper.SetDefault(ViperKeyWebhookListen, 9443)
 	viper.SetDefault(ViperKeyNamespace, false)
 	viper.SetDefault(ViperKeyPipelinerunPrefix, "pipelinerun")
 }
@@ -95,7 +97,7 @@ func Init() {
 		log.Error(err, "config not found")
 		return
 	}
-	var c map[string]interface{}
+	var c Config
 	cmdx.Should(viper.Unmarshal(&c), "unmarshal config failed")
 	if !SkipValidation {
 		log.Info("run config validation")

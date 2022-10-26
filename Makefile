@@ -6,7 +6,7 @@ export NEXT_TAG     ?=
 export CGO_ENABLED   = 1
 
 # Image URL to use all building/pushing image targets
-IMG ?= ciops:$(VERSION)
+IMG ?= w6dio/ciops:$(VERSION)
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.24.2
 
@@ -82,6 +82,11 @@ vet: ## Run go vet against code.
 test: manifests generate fmt vet envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test $(GOTAGS) ./... -coverprofile cover.out
 
+# Formats the code
+.PHONY: format
+format: goimports
+	$(GOIMPORTS) -w -local github.com/w6d-io,gitlab.w6d.io/w6d api controllers internal
+
 ##@ Build
 
 .PHONY: build
@@ -94,7 +99,7 @@ build: generate fmt vet ## Build ciops binary.
 run: manifests generate fmt vet ## Run a controller from your host.
 	go run $(GOTAGS) \
        -ldflags="-X 'github.com/w6d-io/ciops/internal/config.Version=${VERSION}' -X 'github.com/w6d-io/ciops/internal/config.Revision=${VCS_REF}' -X 'github.com/w6d-io/ciops/internal/config.Built=${BUILD_DATE}'" \
-       ./main.go
+       ./main.go serve --config=build/config.yaml
 
 .PHONY: docker-build
 docker-build: test ## Build docker image with the ciops.
@@ -120,7 +125,8 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 
 .PHONY: deploy
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	cd config/manager && $(KUSTOMIZE) edit set image ciops=${IMG}
+	cd config/webhook && $(KUSTOMIZE) edit set image ciops=${IMG}
 	$(KUSTOMIZE) build config/default | kubectl apply -f -
 
 .PHONY: undeploy
@@ -139,6 +145,7 @@ KUSTOMIZE ?= $(LOCALBIN)/kustomize
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
 GITCHGLOG ?= $(LOCALBIN)/git-chglog
+GOIMPORTS ?= $(LOCALBIN)/goimports
 
 
 ## Tool Versions
@@ -165,6 +172,11 @@ $(ENVTEST): $(LOCALBIN)
 chglog: $(GITCHGLOG) ## Download git-chglog locally if necessary
 $(GITCHGLOG): $(LOCALBIN)
 	test -s $(LOCALBIN)/git-chglog || GOBIN=$(LOCALBIN) go install github.com/git-chglog/git-chglog/cmd/git-chglog@latest
+
+.PHONY: goimports
+goimports: $(GOIMPORTS) ## Download git-chglog locally if necessary
+$(GOIMPORTS): $(LOCALBIN)
+	test -s $(LOCALBIN)/goimports || GOBIN=$(LOCALBIN) go install golang.org/x/tools/cmd/goimports
 
 # Changelog
 .PHONY: changelog

@@ -33,19 +33,29 @@ import (
 
 	//+kubebuilder:scaffold:imports
 
-	civ1alpha1 "github.com/w6d-io/ciops/api/v1alpha1"
-	"github.com/w6d-io/ciops/controllers"
-	"github.com/w6d-io/ciops/internal/config"
 	"github.com/w6d-io/x/cmdx"
 	"github.com/w6d-io/x/logx"
 	"github.com/w6d-io/x/pflagx"
+
+	civ1alpha1 "github.com/w6d-io/ciops/api/v1alpha1"
+	"github.com/w6d-io/ciops/controllers"
+	"github.com/w6d-io/ciops/internal/config"
 )
 
 var (
 	scheme  = runtime.NewScheme()
 	rootCmd = &cobra.Command{
 		Use: "ciops",
-		Run: ciops,
+	}
+	s = &cobra.Command{
+		Use:   "serve",
+		Short: "Run the CI/CD server",
+		RunE:  serve,
+	}
+	wh = &cobra.Command{
+		Use:   "webhook",
+		Short: "Run the CI/CD webhook",
+		RunE:  webhook,
 	}
 	OsExit = os.Exit
 )
@@ -59,19 +69,22 @@ func init() {
 
 	cobra.OnInitialize(config.Init)
 	pflagx.CallerSkip = -1
-	pflagx.Init(rootCmd, &config.CfgFile)
+	pflagx.Init(s, &config.CfgFile)
+	pflagx.Init(wh, &config.CfgFile)
 }
 
 func main() {
 	log := logx.WithName(context.TODO(), "Main")
 	rootCmd.AddCommand(cmdx.Version(&config.Version, &config.Revision, &config.Built))
+	rootCmd.AddCommand(s)
+	rootCmd.AddCommand(wh)
 	if err := rootCmd.Execute(); err != nil {
 		log.Error(err, "exec command failed")
 		OsExit(1)
 	}
 }
 
-func ciops(_ *cobra.Command, _ []string) {
+func serve(_ *cobra.Command, _ []string) error {
 	log := logx.WithName(context.TODO(), "setup")
 	if viper.ConfigFileUsed() == "" {
 		log.Info("no configuration file set")
@@ -82,16 +95,16 @@ func ciops(_ *cobra.Command, _ []string) {
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                        scheme,
 		MetricsBindAddress:            viper.GetString(config.ViperKeyMetricsListen),
-		Port:                          9443,
-		HealthProbeBindAddress:        viper.GetString(config.ViperKeyProbListen),
-		LeaderElection:                viper.GetBool(config.ViperKeyEnableLeader),
-		LeaderElectionID:              "ciops.w6d.io",
+		HealthProbeBindAddress:        viper.GetString(config.ViperKeyProbeListen),
+		LeaderElection:                viper.GetBool(config.ViperKeyLeaderElect),
+		LeaderElectionID:              viper.GetString(config.ViperKeyLeaderName),
+		LeaderElectionNamespace:       viper.GetString(config.ViperKeyLeaderNamespace),
 		LeaderElectionReleaseOnCancel: true,
 		Namespace:                     viper.GetString(config.ViperKeyNamespace),
 	})
 	if err != nil {
 		log.Error(err, "unable to start manager")
-		OsExit(1)
+		return err
 	}
 
 	if err = (&controllers.EventReconciler{
@@ -99,22 +112,56 @@ func ciops(_ *cobra.Command, _ []string) {
 		EventScheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		log.Error(err, "unable to create controller", "controller", "Event")
-		os.Exit(1)
+		return err
 	}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		log.Error(err, "unable to set up health check")
-		OsExit(1)
+		return err
 	}
 	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
 		log.Error(err, "unable to set up ready check")
-		OsExit(1)
+		return err
 	}
 
 	log.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
 		log.Error(err, "problem running manager")
-		OsExit(1)
+		return err
 	}
+	return nil
+}
+
+func webhook(_ *cobra.Command, _ []string) error {
+	log := logx.WithName(context.TODO(), "setup")
+	if viper.ConfigFileUsed() == "" {
+		log.Info("no configuration file set")
+	}
+	log.Info("start webhook", "Version", config.Version, "Built",
+		config.Built, "Revision", config.Revision)
+
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+		Scheme:                 scheme,
+		MetricsBindAddress:     viper.GetString(config.ViperKeyMetricsListen),
+		HealthProbeBindAddress: viper.GetString(config.ViperKeyProbeListen),
+		LeaderElection:         false,
+		Port:                   viper.GetInt(config.ViperKeyWebhookListen),
+	})
+	if err != nil {
+		log.Error(err, "unable to start manager")
+		return err
+	}
+
+	if err = (&civ1alpha1.Event{}).SetupWebhookWithManager(mgr); err != nil {
+		log.Error(err, "unable to create webhook", "webhook", "Event")
+		return err
+	}
+
+	log.Info("starting webhook")
+	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+		log.Error(err, "problem running webhook")
+		return err
+	}
+	return nil
 }

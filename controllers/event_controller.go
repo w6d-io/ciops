@@ -18,12 +18,14 @@ package controllers
 
 import (
 	"context"
-	"github.com/w6d-io/ciops/internal/pipelineruns"
+	"strings"
+
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/retry"
-	"strings"
+
+	"github.com/w6d-io/ciops/internal/pipelineruns"
 
 	"github.com/google/uuid"
 	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
@@ -46,9 +48,9 @@ type EventReconciler struct {
 //+kubebuilder:rbac:groups=ci.w6d.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=ci.w6d.io,resources=events/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=ci.w6d.io,resources=events/finalizers,verbs=update
-//+kubebuilder:rbac:groups=v1beta1.tekton.dev,resources=pipelineruns,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=v1beta1.tekton.dev,resources=pipelineruns/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=v1beta1.tekton.dev,resources=pipelineruns/finalizers,verbs=update
+//+kubebuilder:rbac:groups=tekton.dev,resources=pipelineruns,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=tekton.dev,resources=pipelineruns/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=tekton.dev,resources=pipelineruns/finalizers,verbs=update
 
 func (r *EventReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	correlationID := uuid.New().String()

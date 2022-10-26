@@ -17,8 +17,9 @@ package config
 
 import (
 	"context"
-	"github.com/spf13/viper"
 	"net/url"
+
+	"github.com/spf13/viper"
 
 	"github.com/w6d-io/hook"
 	"github.com/w6d-io/x/errorx"

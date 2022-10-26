@@ -92,6 +92,10 @@ spec:
                         type: string
                       ref:
                         type: string
+                    required:
+                    - id
+                    - message
+                    - ref
                     type: object
                   complete:
                     type: boolean
@@ -146,13 +150,15 @@ spec:
                                     environments:
                                       additionalProperties:
                                         type: string
-                                      description: Params       map[string]interface{}
-                                        `json:"params,omitempty"`
                                       type: object
                                     id:
                                       type: string
                                     name:
                                       type: string
+                                    params:
+                                      additionalProperties:
+                                        type: string
+                                      type: object
                                     ref:
                                       type: string
                                     startTime:
@@ -160,6 +166,17 @@ spec:
                                       type: integer
                                     status:
                                       type: string
+                                  required:
+                                  - componentId
+                                  - data
+                                  - endTime
+                                  - environments
+                                  - id
+                                  - name
+                                  - params
+                                  - ref
+                                  - startTime
+                                  - status
                                   type: object
                                 type: array
                               conditions:
@@ -174,6 +191,11 @@ spec:
                                         type: string
                                       when:
                                         type: string
+                                    required:
+                                    - id
+                                    - ref
+                                    - type
+                                    - when
                                     type: object
                                   type: array
                                 type: array
@@ -191,8 +213,24 @@ spec:
                                 type: integer
                               status:
                                 type: string
+                            required:
+                            - actions
+                            - conditions
+                            - endTime
+                            - id
+                            - name
+                            - skipOnFailure
+                            - startTime
+                            - status
                             type: object
                           type: array
+                      required:
+                      - endTime
+                      - id
+                      - name
+                      - startTime
+                      - status
+                      - tasks
                       type: object
                     type: array
                   startTime:
@@ -202,8 +240,48 @@ spec:
                     type: string
                   triggerId:
                     type: string
+                  triggers:
+                    items:
+                      properties:
+                        componentId:
+                          type: string
+                        data:
+                          additionalProperties:
+                            type: string
+                          type: object
+                        id:
+                          type: string
+                        ref:
+                          type: string
+                        type:
+                          type: string
+                      required:
+                      - componentId
+                      - data
+                      - id
+                      - ref
+                      - type
+                      type: object
+                    type: array
                   type:
                     type: string
+                required:
+                - artifacts
+                - commit
+                - complete
+                - endTime
+                - eventId
+                - force
+                - id
+                - logUri
+                - name
+                - pipelineIdNumber
+                - projectId
+                - stages
+                - startTime
+                - status
+                - triggers
+                - type
                 type: object
               pipelineRef:
                 description: PipelineRef is the id pipeline resource name

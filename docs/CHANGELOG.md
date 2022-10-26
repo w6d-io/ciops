@@ -1,4 +1,20 @@
 
+<a name="v0.3.0"></a>
+## [v0.3.0](https://github.com/w6d-io/ciops/compare/v0.2.0...v0.3.0) (2022-10-26)
+
+### Chore
+
+* set event sample [23590e2]("https://github.com/w6d-io/ciops/commit/23590e2c2bdf06a8b78d5f0f7f7903dd85fa5daf")
+
+
+<a name="v0.2.0"></a>
+## [v0.2.0](https://github.com/w6d-io/ciops/compare/v0.1.0...v0.2.0) (2022-10-23)
+
+### Chore
+
+* include tekton v1 scheme [e6a51e5]("https://github.com/w6d-io/ciops/commit/e6a51e5b818455182f8b3a4d1938e9d873f6fad5")
+
+
 <a name="v0.1.0"></a>
 ## v0.1.0 (2022-10-11)
 

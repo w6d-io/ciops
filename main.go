@@ -22,7 +22,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	tknv1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	tknv1beta1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -63,8 +62,8 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 	utilruntime.Must(civ1alpha1.AddToScheme(scheme))
 	utilruntime.Must(tknv1beta1.AddToScheme(scheme))
-	utilruntime.Must(tknv1.AddToScheme(scheme))
-	scheme.AddKnownTypes(tknv1.SchemeGroupVersion, &tknv1.PipelineRun{}, &tknv1.PipelineRunList{})
+	//utilruntime.Must(tknv1.AddToScheme(scheme))
+	//scheme.AddKnownTypes(tknv1.SchemeGroupVersion, &tknv1.PipelineRun{}, &tknv1.PipelineRunList{})
 	//+kubebuilder:scaffold:scheme
 
 	cobra.OnInitialize(config.Init)

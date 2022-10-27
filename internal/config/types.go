@@ -15,7 +15,7 @@ Created on 21/09/2022
 
 package config
 
-import v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
+import v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 
 const (
 	ViperKeyMetricsListen          = "listen.metrics"

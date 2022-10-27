@@ -1,3 +1,6 @@
 listen:
   metrics: ":8080"
   probe: ":8081"
+leaderElection:
+  leaderElect: false
+  resourceName: ciops.ci.w6d.io

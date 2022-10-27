@@ -1,8 +1,6 @@
 listen:
   metrics: ":8080"
   probe: ":8081"
-webhook:
-  port: 9443
 leaderElection:
   leaderElect: true
   resourceName: ciops.ci.w6d.io

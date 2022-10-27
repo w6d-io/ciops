@@ -142,8 +142,9 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Event) error {
 
 	resource := &pipelinev1.PipelineRun{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      GetPipelinerunName(*eSpec.EventID),
-			Namespace: e.Namespace,
+			Name:        GetPipelinerunName(*eSpec.EventID),
+			Namespace:   e.Namespace,
+			Annotations: map[string]string{},
 			Labels: map[string]string{
 				"pipeline.w6d.io/event_id":    fmt.Sprintf("%d", *eSpec.EventID),
 				"pipeline.w6d.io/name":        fmt.Sprintf("pipelinerun-%d", *eSpec.EventID),

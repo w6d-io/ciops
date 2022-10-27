@@ -1,6 +1,6 @@
 apiVersion: ci.w6d.io/v1alpha1
-kind: EventBudget
+kind: FactBudget
 metadata:
-  name: eventbudget-sample
+  name: factbudget-sample
 spec:
   # TODO(user): Add fields here

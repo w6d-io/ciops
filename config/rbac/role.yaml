@@ -8,7 +8,7 @@ rules:
 - apiGroups:
   - ci.w6d.io
   resources:
-  - eventbudgets
+  - factbudgets
   verbs:
   - create
   - delete
@@ -20,13 +20,13 @@ rules:
 - apiGroups:
   - ci.w6d.io
   resources:
-  - eventbudgets/finalizers
+  - factbudgets/finalizers
   verbs:
   - update
 - apiGroups:
   - ci.w6d.io
   resources:
-  - eventbudgets/status
+  - factbudgets/status
   verbs:
   - get
   - patch
@@ -34,7 +34,7 @@ rules:
 - apiGroups:
   - ci.w6d.io
   resources:
-  - events
+  - facts
   verbs:
   - create
   - delete
@@ -46,13 +46,13 @@ rules:
 - apiGroups:
   - ci.w6d.io
   resources:
-  - events/finalizers
+  - facts/finalizers
   verbs:
   - update
 - apiGroups:
   - ci.w6d.io
   resources:
-  - events/status
+  - facts/status
   verbs:
   - get
   - patch

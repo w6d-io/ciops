@@ -106,11 +106,11 @@ func serve(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err = (&controllers.EventReconciler{
-		Client:      mgr.GetClient(),
-		EventScheme: scheme,
+	if err = (&controllers.FactReconciler{
+		Client:     mgr.GetClient(),
+		FactScheme: scheme,
 	}).SetupWithManager(mgr); err != nil {
-		log.Error(err, "unable to create controller", "controller", "Event")
+		log.Error(err, "unable to create controller", "controller", "Fact")
 		return err
 	}
 	//+kubebuilder:scaffold:builder
@@ -152,8 +152,8 @@ func webhook(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	if err = (&civ1alpha1.Event{}).SetupWebhookWithManager(mgr); err != nil {
-		log.Error(err, "unable to create webhook", "webhook", "Event")
+	if err = (&civ1alpha1.Fact{}).SetupWebhookWithManager(mgr); err != nil {
+		log.Error(err, "unable to create webhook", "webhook", "Fact")
 
 		return err
 	}

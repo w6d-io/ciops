@@ -51,7 +51,7 @@ const (
 )
 
 const (
-	AnnotationSchedule = "events.ci.w6d.io/scheduled-at"
+	AnnotationSchedule = "facts.ci.w6d.io/scheduled-at"
 )
 
 // TriggerSpec defines the trigger
@@ -61,10 +61,10 @@ type TriggerSpec struct {
 	Type string `json:"type,omitempty"`
 }
 
-// EventSpec defines the desired state of Event
-type EventSpec struct {
+// FactSpec defines the desired state of Fact
+type FactSpec struct {
 
-	// EventID id of the event
+	// EventID id of the fact
 	EventID *int64 `json:"eventId,omitempty"`
 
 	// ProjectID id of the project
@@ -79,16 +79,16 @@ type EventSpec struct {
 	// ProjectURL url of the project
 	ProjectURL string `json:"projectUrl,omitempty"`
 
-	// Ref is project reference for this event
+	// Ref is project reference for this fact
 	Ref string `json:"ref,omitempty"`
 
-	// Commit project for this event
+	// Commit project for this fact
 	Commit string `json:"commit,omitempty"`
 
-	// BeforeSha is the previous commit sha for this event
+	// BeforeSha is the previous commit sha for this fact
 	BeforeSha string `json:"beforeSha,omitempty"`
 
-	// CommitMessage is the message of this commit event
+	// CommitMessage is the message of this commit fact
 	CommitMessage string `json:"commitMessage,omitempty"`
 
 	// UserId is the user id from the repository
@@ -103,7 +103,7 @@ type EventSpec struct {
 	// Modified is the list of files that have been modified in this commit
 	Modified []string `json:"modified,omitempty"`
 
-	// ProviderId is the id of the provider that send this event
+	// ProviderId is the id of the provider that send this fact
 	ProviderId string `json:"providerId,omitempty"`
 
 	// Trigger
@@ -120,8 +120,8 @@ type EventSpec struct {
 // State type
 type State string
 
-// EventStatus defines the observed state of Event
-type EventStatus struct {
+// FactStatus defines the observed state of Fact
+type FactStatus struct {
 	// PipelineRunName contains the pipeline run name created by play
 	// +optional
 	PipelineRunName string `json:"pipelineRunName,omitempty"`
@@ -147,24 +147,24 @@ type EventStatus struct {
 //+kubebuilder:printcolumn:name="Message",type="string",priority=1,JSONPath=".status.message"
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC."
 
-// Event is the Schema for the events API
-type Event struct {
+// Fact is the Schema for the facts API
+type Fact struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   EventSpec   `json:"spec,omitempty"`
-	Status EventStatus `json:"status,omitempty"`
+	Spec   FactSpec   `json:"spec,omitempty"`
+	Status FactStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// EventList contains a list of Event
-type EventList struct {
+// FactList contains a list of Fact
+type FactList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Event `json:"items"`
+	Items           []Fact `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&Event{}, &EventList{})
+	SchemeBuilder.Register(&Fact{}, &FactList{})
 }

@@ -57,7 +57,7 @@ spec:
     subresources:
       status: {}
   - name: v1
-    served: true
+    served: false
     storage: false
     schema:
       openAPIV3Schema:

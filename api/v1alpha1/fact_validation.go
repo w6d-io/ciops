@@ -23,79 +23,79 @@ import (
 	pipeline "github.com/w6d-io/apis/pipeline/v1alpha1"
 )
 
-func ValidateEvent(name string, event EventSpec) error {
+func ValidateFact(name string, fact FactSpec) error {
 	var allErrs field.ErrorList
 
-	allErrs = append(allErrs, ValidateEventSpec(event)...)
-	allErrs = append(allErrs, ValidateTrigger(event.Trigger)...)
-	allErrs = append(allErrs, ValidatePipeline(event.Pipeline)...)
+	allErrs = append(allErrs, ValidateFactSpec(fact)...)
+	allErrs = append(allErrs, ValidateTrigger(fact.Trigger)...)
+	allErrs = append(allErrs, ValidatePipeline(fact.Pipeline)...)
 	if len(allErrs) == 0 {
 		return nil
 	}
 	return apierrors.NewInvalid(schema.GroupKind{
 		Group: GroupVersion.String(),
-		Kind:  "Event",
+		Kind:  "Fact",
 	}, name, allErrs)
 }
 
-func ValidateEventSpec(event EventSpec) (allErrs field.ErrorList) {
-	if event.EventID == nil {
+func ValidateFactSpec(fact FactSpec) (allErrs field.ErrorList) {
+	if fact.EventID == nil {
 		allErrs = append(
 			allErrs,
 			field.Required(
 				field.NewPath("spec").Child("eventId"), ""),
 		)
 	}
-	if event.ProjectID == 0 {
+	if fact.ProjectID == 0 {
 		allErrs = append(
 			allErrs,
 			field.Required(
 				field.NewPath("spec").Child("projectId"), ""),
 		)
 	}
-	if len(event.PipelineRef) == 0 {
+	if len(fact.PipelineRef) == 0 {
 		allErrs = append(
 			allErrs,
 			field.Required(
 				field.NewPath("spec").Child("pipelineRef"), ""),
 		)
 	}
-	if len(event.ProjectName) == 0 {
+	if len(fact.ProjectName) == 0 {
 		allErrs = append(
 			allErrs,
 			field.Required(
 				field.NewPath("spec").Child("projectName"), ""),
 		)
 	}
-	if len(event.ProjectURL) == 0 {
+	if len(fact.ProjectURL) == 0 {
 		allErrs = append(
 			allErrs,
 			field.Required(
 				field.NewPath("spec").Child("projectUrl"), ""),
 		)
 	}
-	if len(event.Ref) == 0 {
+	if len(fact.Ref) == 0 {
 		allErrs = append(
 			allErrs,
 			field.Required(
 				field.NewPath("spec").Child("ref"), ""),
 		)
 	}
-	if len(event.Commit) == 0 {
+	if len(fact.Commit) == 0 {
 		allErrs = append(
 			allErrs,
 			field.Required(
 				field.NewPath("spec").Child("commit"), ""),
 		)
 	}
-	if len(event.BeforeSha) == 0 {
+	if len(fact.BeforeSha) == 0 {
 		allErrs = append(
 			allErrs,
 			field.Required(
 				field.NewPath("spec").Child("beforeSha"), ""),
 		)
 	}
-	if len(event.CommitMessage) == 0 {
+	if len(fact.CommitMessage) == 0 {
 		allErrs = append(
 			allErrs,
 			field.Required(
@@ -103,7 +103,7 @@ func ValidateEventSpec(event EventSpec) (allErrs field.ErrorList) {
 		)
 	}
 
-	if len(event.UserId) == 0 {
+	if len(fact.UserId) == 0 {
 		allErrs = append(
 			allErrs,
 			field.Required(

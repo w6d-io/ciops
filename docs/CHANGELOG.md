@@ -4,7 +4,7 @@
 
 ### Chore
 
-* set event sample [23590e2]("https://github.com/w6d-io/ciops/commit/23590e2c2bdf06a8b78d5f0f7f7903dd85fa5daf")
+* set fact sample [23590e2]("https://github.com/w6d-io/ciops/commit/23590e2c2bdf06a8b78d5f0f7f7903dd85fa5daf")
 
 
 <a name="v0.2.0"></a>
@@ -27,7 +27,7 @@
 
 ### Features
 
-* add EventBudget [85e5768]("https://github.com/w6d-io/ciops/commit/85e57680c84f3b53f418dc1286a5b68233575924")
+* add FactBudget [85e5768]("https://github.com/w6d-io/ciops/commit/85e57680c84f3b53f418dc1286a5b68233575924")
 * add pipelinerun controller and set status [9ac35d0]("https://github.com/w6d-io/ciops/commit/9ac35d030d5d5389281b8dbb946d2a682cc0b5e5")
 * built spec and controller [0ee191e]("https://github.com/w6d-io/ciops/commit/0ee191eb4d05953d6f20b9083b383f4a27ad6ac8")
 

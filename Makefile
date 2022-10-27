@@ -4,6 +4,7 @@ VCS_REF    = $(shell git rev-parse HEAD)
 
 export NEXT_TAG     ?=
 export CGO_ENABLED   = 1
+export LOG_LEVEL     = 2
 
 # Image URL to use all building/pushing image targets
 IMG ?= w6dio/ciops:$(VERSION)
@@ -99,7 +100,7 @@ build: generate fmt vet ## Build ciops binary.
 run: manifests generate fmt vet ## Run a controller from your host.
 	go run $(GOTAGS) \
        -ldflags="-X 'github.com/w6d-io/ciops/internal/config.Version=${VERSION}' -X 'github.com/w6d-io/ciops/internal/config.Revision=${VCS_REF}' -X 'github.com/w6d-io/ciops/internal/config.Built=${BUILD_DATE}'" \
-       ./main.go serve --config=build/config.yaml
+       ./main.go serve --config=test/config.yaml --log-level=2
 
 .PHONY: docker-build
 docker-build: test ## Build docker image with the ciops.

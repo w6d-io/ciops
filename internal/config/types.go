@@ -26,6 +26,7 @@ const (
 	ViperKeyLeaderNamespace        = "leaderElection.namespace"
 	ViperKeyNamespace              = "namespace"
 	ViperKeyHooks                  = "hooks"
+	ViperKeyPipelinerun            = "pipelinerun"
 	ViperKeyPipelinerunPrefix      = "pipelinerun.prefix"
 	ViperKeyPipelinerunPodTemplate = "pipelinerun.podTemplate"
 	ViperKeyPipelinerunWorkspaces  = "pipelinerun.workspaces"

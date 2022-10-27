@@ -1,7 +1,7 @@
 apiVersion: ci.w6d.io/v1alpha1
-kind: Event
+kind: Fact
 metadata:
-  name: event-sample
+  name: fact-sample
 spec:
   beforeSha: bc630138599a51ca72f22a91bb4340ccdd5bd2db
   commit: 4e0a9786d4e5ccfbfdc5b7dc814193c3f0ea9f24
@@ -32,7 +32,7 @@ spec:
         type: git
         componentId: component-ml-1374490178-1
         data:
-          _configData: '{"component":"component-ml-1374490178-1","types":"github_webhook","events":"repository_push","fields":[{"id":"repository_branch","name":"master","value":"master","target":"branch"}]}'
+          _configData: '{"component":"component-ml-1374490178-1","types":"github_webhook","facts":"repository_push","fields":[{"id":"repository_branch","name":"master","value":"master","target":"branch"}]}'
           branch: master
           eventType: Push
           providerId: github
@@ -41,7 +41,7 @@ spec:
         type: git
         componentId: component-ml-1374490178-1
         data:
-          _configData: '{"component":"component-ml-1374490178-1","types":"github_webhook","events":"repository_push","fields":[{"id":"repository_branch","name":"main","value":"main","target":"branch"}]}'
+          _configData: '{"component":"component-ml-1374490178-1","types":"github_webhook","facts":"repository_push","fields":[{"id":"repository_branch","name":"main","value":"main","target":"branch"}]}'
           branch: main
           eventType: Push
           providerId: github

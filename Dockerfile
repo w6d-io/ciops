@@ -1,5 +1,8 @@
 # Build the manager binary
 FROM golang:1.19 as builder
+ARG VERSION
+ARG VCS_REF
+ARG BUILD_DATE
 
 WORKDIR /github.com/w6d-io/ciops
 # Copy the Go Modules manifests

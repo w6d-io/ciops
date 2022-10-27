@@ -1,5 +1,5 @@
 ## Append samples you want in your CSV to this file as resources ##
 resources:
-- ci_v1alpha1_event.yaml
-- ci_v1alpha1_eventbudget.yaml
+- ci_v1alpha1_fact.yaml
+- ci_v1alpha1_factbudget.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

@@ -24,7 +24,7 @@ import (
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	zapraw "go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -36,9 +36,8 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"github.com/w6d-io/x/logx"
-
 	civ1alpha1 "github.com/w6d-io/ciops/api/v1alpha1"
+	"github.com/w6d-io/x/logx"
 	//+kubebuilder:scaffold:imports
 )
 

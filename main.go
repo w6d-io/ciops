@@ -33,13 +33,12 @@ import (
 
 	//+kubebuilder:scaffold:imports
 
-	"github.com/w6d-io/x/cmdx"
-	"github.com/w6d-io/x/logx"
-	"github.com/w6d-io/x/pflagx"
-
 	civ1alpha1 "github.com/w6d-io/ciops/api/v1alpha1"
 	"github.com/w6d-io/ciops/controllers"
 	"github.com/w6d-io/ciops/internal/config"
+	"github.com/w6d-io/x/cmdx"
+	"github.com/w6d-io/x/logx"
+	"github.com/w6d-io/x/pflagx"
 )
 
 var (
@@ -65,6 +64,7 @@ func init() {
 	utilruntime.Must(civ1alpha1.AddToScheme(scheme))
 	utilruntime.Must(tknv1beta1.AddToScheme(scheme))
 	utilruntime.Must(tknv1.AddToScheme(scheme))
+	scheme.AddKnownTypes(tknv1.SchemeGroupVersion, &tknv1.PipelineRun{}, &tknv1.PipelineRunList{})
 	//+kubebuilder:scaffold:scheme
 
 	cobra.OnInitialize(config.Init)
@@ -109,7 +109,7 @@ func serve(_ *cobra.Command, _ []string) error {
 
 	if err = (&controllers.EventReconciler{
 		Client:      mgr.GetClient(),
-		EventScheme: mgr.GetScheme(),
+		EventScheme: scheme,
 	}).SetupWithManager(mgr); err != nil {
 		log.Error(err, "unable to create controller", "controller", "Event")
 		return err
@@ -155,6 +155,16 @@ func webhook(_ *cobra.Command, _ []string) error {
 
 	if err = (&civ1alpha1.Event{}).SetupWebhookWithManager(mgr); err != nil {
 		log.Error(err, "unable to create webhook", "webhook", "Event")
+
+		return err
+	}
+
+	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
+		log.Error(err, "unable to set up health check")
+		return err
+	}
+	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
+		log.Error(err, "unable to set up ready check")
 		return err
 	}
 

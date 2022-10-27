@@ -28,7 +28,8 @@ import (
 	"github.com/w6d-io/ciops/internal/pipelineruns"
 
 	"github.com/google/uuid"
-	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
+	tknv1beta1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -48,6 +49,9 @@ type EventReconciler struct {
 //+kubebuilder:rbac:groups=ci.w6d.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=ci.w6d.io,resources=events/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=ci.w6d.io,resources=events/finalizers,verbs=update
+//+kubebuilder:rbac:groups=ci.w6d.io,resources=eventbudgets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=ci.w6d.io,resources=eventbudgets/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=ci.w6d.io,resources=eventbudgets/finalizers,verbs=update
 //+kubebuilder:rbac:groups=tekton.dev,resources=pipelineruns,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=tekton.dev,resources=pipelineruns/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=tekton.dev,resources=pipelineruns/finalizers,verbs=update
@@ -159,6 +163,7 @@ func (r *EventReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.Event{}).
 		Owns(&tkn.PipelineRun{}).
+		Owns(&tknv1beta1.PipelineRun{}).
 		WithOptions(controller.Options{
 			MaxConcurrentReconciles: 10,
 		}).

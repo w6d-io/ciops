@@ -3,8 +3,34 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   creationTimestamp: null
-  name: ciops-role
+  name: role
 rules:
+- apiGroups:
+  - ci.w6d.io
+  resources:
+  - eventbudgets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ci.w6d.io
+  resources:
+  - eventbudgets/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ci.w6d.io
+  resources:
+  - eventbudgets/status
+  verbs:
+  - get
+  - patch
+  - update
 - apiGroups:
   - ci.w6d.io
   resources:

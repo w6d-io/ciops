@@ -11,7 +11,7 @@ require (
 	github.com/onsi/gomega v1.20.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.9.0
-	github.com/tektoncd/pipeline v0.40.0
+	github.com/tektoncd/pipeline v0.40.2
 	github.com/w6d-io/apis v0.2.0
 	github.com/w6d-io/hook v0.3.0
 	github.com/w6d-io/jsonschema v0.1.2
@@ -75,6 +75,7 @@ require (
 	github.com/jandelgado/gcov2lcov v1.0.4 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/kr/pretty v0.2.1 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect

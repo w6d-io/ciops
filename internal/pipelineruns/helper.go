@@ -19,7 +19,7 @@ import (
 	"bytes"
 	"fmt"
 
-	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"

@@ -57,6 +57,7 @@ func setDefault() {
 	viper.SetDefault(ViperKeyMetricsListen, ":8080")
 	viper.SetDefault(ViperKeyProbeListen, ":8081")
 	viper.SetDefault(ViperKeyLeaderName, "ciops.ci.w6d.io")
+	viper.SetDefault(ViperKeyLeaderElect, false)
 	viper.SetDefault(ViperKeyWebhookListen, 9443)
 	viper.SetDefault(ViperKeyNamespace, false)
 	viper.SetDefault(ViperKeyPipelinerunPrefix, "pipelinerun")

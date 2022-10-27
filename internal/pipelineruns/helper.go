@@ -30,7 +30,7 @@ import (
 )
 
 func GetPipelinerunName(id int64) string {
-	return fmt.Sprintf("%s-%d", PipelinerunPrefix, id)
+	return fmt.Sprintf("%s-%d", LC.PipelinerunPrefix, id)
 }
 
 func getObjectContain(obj runtime.Object) string {

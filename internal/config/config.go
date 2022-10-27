@@ -106,9 +106,11 @@ func Init() {
 		cmdx.Must(jsonschema.Config.Validate(&c), "config validation failed")
 	}
 	cmdx.Must(hookSubscription(), "hook subscription failed")
-	extraConfigJson(ViperKeyPipelinerunPodTemplate, &pipelineruns.PodTemplate)
-	extraConfigJson(ViperKeyPipelinerunWorkspaces, &pipelineruns.Workspace)
-	pipelineruns.PipelinerunPrefix = viper.GetString(ViperKeyPipelinerunPrefix)
+	cmdx.Should(viper.UnmarshalKey(ViperKeyPipelinerun, &pipelineruns.LC), "failed to record pod template")
+	//cmdx.Should(viper.UnmarshalKey(ViperKeyPipelinerun, &pipelineruns.Workspace), "failed to record workspace")
+	//extraConfigJson(ViperKeyPipelinerunPodTemplate, &pipelineruns.PodTemplate)
+	//extraConfigJson(ViperKeyPipelinerunWorkspaces, &pipelineruns.Workspace)
+	//pipelineruns.PipelinerunPrefix = viper.GetString(ViperKeyPipelinerunPrefix)
 }
 
 func extraConfigJson(key string, rawVar interface{}) {

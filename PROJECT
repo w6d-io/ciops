@@ -13,7 +13,7 @@ resources:
   controller: true
   domain: w6d.io
   group: ci
-  kind: Event
+  kind: Fact
   path: github.com/w6d-io/ciops/api/v1alpha1
   version: v1alpha1
   webhooks:
@@ -25,7 +25,7 @@ resources:
     namespaced: true
   domain: w6d.io
   group: ci
-  kind: EventBudget
+  kind: FactBudget
   path: github.com/w6d-io/ciops/api/v1alpha1
   version: v1alpha1
 version: "3"

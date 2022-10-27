@@ -28,8 +28,7 @@ import (
 	"github.com/w6d-io/ciops/internal/pipelineruns"
 
 	"github.com/google/uuid"
-	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
-	tknv1beta1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -163,7 +162,6 @@ func (r *EventReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.Event{}).
 		Owns(&tkn.PipelineRun{}).
-		Owns(&tknv1beta1.PipelineRun{}).
 		WithOptions(controller.Options{
 			MaxConcurrentReconciles: 10,
 		}).

@@ -28,4 +28,13 @@ resources:
   kind: FactBudget
   path: github.com/w6d-io/ciops/api/v1alpha1
   version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: w6d.io
+  group: ci
+  kind: PipelineSource
+  path: github.com/w6d-io/ciops/api/v1alpha1
+  version: v1alpha1
 version: "3"

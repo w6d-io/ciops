@@ -51,7 +51,7 @@ const (
 )
 
 const (
-	AnnotationSchedule = "facts.ci.w6d.io/scheduled-at"
+	AnnotationSchedule = "ciops.ci.w6d.io/scheduled-at"
 )
 
 // TriggerSpec defines the trigger

@@ -36,8 +36,9 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	civ1alpha1 "github.com/w6d-io/ciops/api/v1alpha1"
 	"github.com/w6d-io/x/logx"
+
+	civ1alpha1 "github.com/w6d-io/ciops/api/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -97,9 +98,14 @@ var _ = BeforeSuite(func() {
 
 	err = civ1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
+
 	err = clientgoscheme.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
+
 	err = tkn.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = civ1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	//+kubebuilder:scaffold:scheme

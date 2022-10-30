@@ -2,4 +2,5 @@
 resources:
 - ci_v1alpha1_fact.yaml
 - ci_v1alpha1_factbudget.yaml
+- ci_v1alpha1_pipelinesource.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

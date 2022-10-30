@@ -1,0 +1,24 @@
+# permissions for end users to edit pipelinesources.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pipelinesource-editor-role
+rules:
+- apiGroups:
+  - ci.w6d.io
+  resources:
+  - pipelinesources
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ci.w6d.io
+  resources:
+  - pipelinesources/status
+  verbs:
+  - get

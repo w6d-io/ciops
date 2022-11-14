@@ -14,14 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controllers
+package controllers_test
 
 import (
 	"context"
+	"encoding/json"
+	"github.com/google/uuid"
+	"github.com/w6d-io/ciops/controllers"
+	"github.com/w6d-io/ciops/internal/actions"
+	"github.com/w6d-io/ciops/internal/namespaces"
+	"github.com/w6d-io/ciops/internal/pipelineruns"
+	"github.com/w6d-io/x/logx"
+	"os"
 	"path/filepath"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"testing"
 
-	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
@@ -35,8 +43,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/envtest/printer"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-
-	"github.com/w6d-io/x/logx"
 
 	civ1alpha1 "github.com/w6d-io/ciops/api/v1alpha1"
 	//+kubebuilder:scaffold:imports
@@ -60,6 +66,10 @@ func TestAPIs(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
+	correlationID := uuid.New().String()
+	ctx = context.Background()
+	ctx = context.WithValue(ctx, logx.CorrelationID, correlationID)
+
 	encoder := zapcore.EncoderConfig{
 		// Keys can be anything except the empty string.
 		TimeKey:        "T",
@@ -114,13 +124,48 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(k8sClient).NotTo(BeNil())
 
-	correlationID := uuid.New().String()
-	ctx = context.Background()
-	ctx = context.WithValue(ctx, logx.CorrelationID, correlationID)
+	k8sManager, err := ctrl.NewManager(cfg, ctrl.Options{
+		Scheme: scheme,
+	})
+	Expect(err).NotTo(HaveOccurred(), "failed to initiate k8s manager")
+
+	err = (&controllers.FactReconciler{
+		Client:      k8sManager.GetClient(),
+		LocalScheme: k8sManager.GetScheme(),
+	}).SetupWithManager(k8sManager)
+	Expect(err).NotTo(HaveOccurred(), "failed to setup manager with Fact")
+
+	err = (&controllers.PipelineSourceReconciler{
+		Client:      k8sManager.GetClient(),
+		LocalScheme: k8sManager.GetScheme(),
+	}).SetupWithManager(k8sManager)
+	Expect(err).NotTo(HaveOccurred(), "failed to setup manager with PipelineSource")
+	namespaces.Prefix = "p6e-cx"
+	pipelineruns.LC = pipelineruns.LocalConfig{
+		Template:          nil,
+		WB:                nil,
+		PipelinerunPrefix: "pipelinerun",
+	}
+	extraConfig("testdata/default-actions.json", actions.Defaults)
+	extraConfig("testdata/actions.json", actions.Actions)
+	go func() {
+		defer GinkgoRecover()
+		err = k8sManager.Start(ctx)
+		Expect(err).ToNot(HaveOccurred(), "failed to run manager")
+	}()
 }, 60)
 
 var _ = AfterSuite(func() {
 	By("tearing down the test environment")
-	err := testEnv.Stop()
-	Expect(err).NotTo(HaveOccurred())
+	_ = testEnv.Stop()
+	//Expect(err).NotTo(HaveOccurred())
 })
+
+func extraConfig(extraFile string, rawVar interface{}) {
+	if extraFile != "" {
+
+		data, err := os.ReadFile(extraFile)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(json.Unmarshal(data, rawVar)).To(Succeed())
+	}
+}

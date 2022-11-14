@@ -17,9 +17,9 @@ package controllers
 
 import (
 	"context"
+	ctrl "sigs.k8s.io/controller-runtime"
 
 	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
-	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/w6d-io/ciops/api/v1alpha1"
@@ -27,17 +27,18 @@ import (
 	"github.com/w6d-io/x/logx"
 )
 
-func (r *FactReconciler) checkConcurrency(ctx context.Context, nn types.NamespacedName, pipelineName string) error {
-	log := logx.WithName(ctx, "checkConcurrency")
+func (r *FactReconciler) checkConcurrency(ctx context.Context, req ctrl.Request, e *v1alpha1.Fact) error {
+	log := logx.WithName(ctx, "checkConcurrency").WithValues("fact", req.NamespacedName)
 	log.V(1).Info("getting all pipeline run")
+	pipelineName := pipelineruns.GetPipelinerunName(*e.Spec.EventID)
 	status := v1alpha1.FactStatus{PipelineRunName: pipelineName}
 	prs := new(tkn.PipelineRunList)
-	if err := r.List(ctx, prs, client.InNamespace(nn.Namespace)); IgnoreNotExists(err) != nil {
+	if err := r.List(ctx, prs, client.InNamespace(req.Namespace)); IgnoreNotExists(err) != nil {
 		log.Error(err, "get list pipelinerun failed")
 		log.V(1).Info("update status", "status", v1alpha1.Errored,
 			"step", "2")
 		status.State = v1alpha1.Errored
-		if err := r.UpdateStatus(ctx, nn, status); err != nil {
+		if err := r.UpdateStatus(ctx, req.NamespacedName, status); err != nil {
 			return err
 		}
 		return err
@@ -54,7 +55,7 @@ func (r *FactReconciler) checkConcurrency(ctx context.Context, nn types.Namespac
 	log.V(1).Info("get fact budget")
 
 	ebs := new(v1alpha1.FactBudgetList)
-	if err := r.List(ctx, ebs, client.InNamespace(nn.Namespace)); IgnoreNotExists(err) != nil {
+	if err := r.List(ctx, ebs, client.InNamespace(req.Namespace)); IgnoreNotExists(err) != nil {
 		log.Error(err, "get fact budget failed")
 		return err
 	}
@@ -83,7 +84,7 @@ func (r *FactReconciler) checkConcurrency(ctx context.Context, nn types.Namespac
 		log.V(1).Info("update status", "status", v1alpha1.Queued,
 			"step", "4")
 		status.State = v1alpha1.Queued
-		if err := r.UpdateStatus(ctx, nn, status); err != nil {
+		if err := r.UpdateStatus(ctx, req.NamespacedName, status); err != nil {
 			return err
 		}
 	}

@@ -76,7 +76,16 @@
       }
     },
     "namespace": {
-      "type": "string"
+      "type": "object",
+      "required": ["prefix"],
+      "properties": {
+        "prefix": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        }
+      }
     },
     "hooks": {
       "type": ["array","null"],

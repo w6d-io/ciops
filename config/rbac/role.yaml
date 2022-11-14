@@ -109,3 +109,55 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - tekton.dev
+  resources:
+  - pipelines
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - tekton.dev
+  resources:
+  - pipelines/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - tekton.dev
+  resources:
+  - pipelines/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - tekton.dev
+  resources:
+  - tasks
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - tekton.dev
+  resources:
+  - tasks/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - tekton.dev
+  resources:
+  - tasks/status
+  verbs:
+  - get
+  - patch
+  - update

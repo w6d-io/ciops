@@ -8,13 +8,23 @@ spec:
     spec:
       containers:
       - name: ciops
+        env:
+          - name: CIOPS_EXTRA_DEFAULTACTIONS
+            value: "/config/extra/default_actions.yaml"
+          - name: CIOPS_EXTRA_ACTIONS
+            value: "/config/extra/actions.yaml"
         args:
-        - "--config=/controller_manager_config.yaml"
+        - "--config=/config/config.yaml"
         volumeMounts:
         - name: ciops-config
-          mountPath: /controller_manager_config.yaml
-          subPath: controller_manager_config.yaml
+          mountPath: /config/config.yaml
+          subPath: config.yaml
+        - name: ciops-config-extra
+          mountPath: /config/extra
       volumes:
       - name: ciops-config
         configMap:
           name: ciops-config
+      - name: ciops-config-extra
+        configMap:
+          name: ciops-config-extra

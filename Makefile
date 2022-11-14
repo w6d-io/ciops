@@ -102,6 +102,12 @@ run: manifests generate fmt vet ## Run a controller from your host.
        -ldflags="-X 'github.com/w6d-io/ciops/internal/config.Version=${VERSION}' -X 'github.com/w6d-io/ciops/internal/config.Revision=${VCS_REF}' -X 'github.com/w6d-io/ciops/internal/config.Built=${BUILD_DATE}'" \
        ./main.go serve --config=test/config.yaml --log-level=2
 
+.PHONY: run-webhook
+run-webhook: manifests generate fmt vet ## Run a controller from your host.
+	go run $(GOTAGS) \
+       -ldflags="-X 'github.com/w6d-io/ciops/internal/config.Version=${VERSION}' -X 'github.com/w6d-io/ciops/internal/config.Revision=${VCS_REF}' -X 'github.com/w6d-io/ciops/internal/config.Built=${BUILD_DATE}'" \
+       ./main.go webhook --config=test/config.yaml --log-level=2
+
 .PHONY: docker-build
 docker-build: test ## Build docker image with the ciops.
 	docker build --build-arg=VERSION=${VERSION} --build-arg=VCS_REF=${VCS_REF} --build-arg=BUILD_DATE=${BUILD_DATE} -t ${IMG} .

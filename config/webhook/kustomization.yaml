@@ -25,7 +25,7 @@ kind: Kustomization
 images:
 - name: ciops
   newName: w6dio/ciops
-  newTag: webhook
+  newTag: feat-pipelinesource
 - name: webhook
   newName: w6dio/ciops
   newTag: webhook

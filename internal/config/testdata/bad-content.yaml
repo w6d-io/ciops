@@ -1,0 +1,22 @@
+---
+listen:
+  metrics: ":8080"
+  probe: ":8081"
+leader: true
+namespace: "" # cluster wide
+hooks:
+  - url: http://localhost:8001/test
+    scope: "end"
+pipelinerun_prefix: "pipelinerun"
+podTemplate:
+  nodeSelector:
+    role: spot
+  tolerations:
+    - effect: NoSchedule
+      key: spotInstance
+      operator: Equal
+      value: "true"
+workspaces:
+  - emptyDir: { }
+    name: ws
+

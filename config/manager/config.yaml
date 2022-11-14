@@ -6,16 +6,6 @@ leaderElection:
   resourceName: ciops.ci.w6d.io
 pipelinerun:
   prefix: "pipelinerun"
-  workspaces:
-    - emptyDir: {}
-      name: ws
-  workspacePipelineTaskBinding:
-    - name: artifacts
-      subPath: artifacts
-      workspace: ws
-    - name: source
-      subPath: source
-      workspace: ws
   podTemplate:
     nodeSelector:
       role: spot
@@ -24,4 +14,13 @@ pipelinerun:
         key: spotInstance
         operator: Equal
         value: "true"
-namespace: ""
+workspaces:
+  - emptyDir: {}
+    name: ws
+workspacePipelineTaskBinding:
+  - name: artifacts
+    subPath: artifacts
+    workspace: ws
+  - name: source
+    subPath: source
+    workspace: ws

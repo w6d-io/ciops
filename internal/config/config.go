@@ -18,6 +18,10 @@ package config
 import (
 	"context"
 	"encoding/json"
+	"github.com/w6d-io/ciops/internal/actions"
+	"github.com/w6d-io/ciops/internal/namespaces"
+	"github.com/w6d-io/ciops/internal/pipelines"
+	"github.com/w6d-io/ciops/internal/tasks"
 	"os"
 	"path/filepath"
 	"strings"
@@ -59,8 +63,9 @@ func setDefault() {
 	viper.SetDefault(ViperKeyLeaderName, "ciops.ci.w6d.io")
 	viper.SetDefault(ViperKeyLeaderElect, false)
 	viper.SetDefault(ViperKeyWebhookListen, 9443)
-	viper.SetDefault(ViperKeyNamespace, false)
+	viper.SetDefault(ViperKeyNamespaceScope, false)
 	viper.SetDefault(ViperKeyPipelinerunPrefix, "pipelinerun")
+	viper.SetDefault(ViperKeyNamespacePrefix, "p6e-cx")
 }
 
 // FileNameWithoutExtension returns the
@@ -107,9 +112,13 @@ func Init() {
 	}
 	cmdx.Must(hookSubscription(), "hook subscription failed")
 	cmdx.Should(viper.UnmarshalKey(ViperKeyPipelinerun, &pipelineruns.LC), "failed to record pod template")
+	extraConfigJson(ViperKeyWorkspaces, &tasks.Workspace)
+	extraConfigJson(ViperKeyWorkspaces, &pipelines.Workspace)
+	namespaces.Prefix = viper.GetString(ViperKeyNamespacePrefix)
+	extraConfigJson(ViperKeyExtraActions, actions.Actions)
+	extraConfigJson(ViperKeyExtraDefaultActions, actions.Defaults)
 	//cmdx.Should(viper.UnmarshalKey(ViperKeyPipelinerun, &pipelineruns.Workspace), "failed to record workspace")
 	//extraConfigJson(ViperKeyPipelinerunPodTemplate, &pipelineruns.PodTemplate)
-	//extraConfigJson(ViperKeyPipelinerunWorkspaces, &pipelineruns.Workspace)
 	//pipelineruns.PipelinerunPrefix = viper.GetString(ViperKeyPipelinerunPrefix)
 }
 

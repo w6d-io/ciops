@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
 	"strings"
 
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -42,7 +43,7 @@ import (
 // FactReconciler reconciles a Fact object
 type FactReconciler struct {
 	client.Client
-	FactScheme *runtime.Scheme
+	LocalScheme *runtime.Scheme
 }
 
 //+kubebuilder:rbac:groups=ci.w6d.io,resources=facts,verbs=get;list;watch;create;update;patch;delete
@@ -55,6 +56,8 @@ type FactReconciler struct {
 //+kubebuilder:rbac:groups=tekton.dev,resources=pipelineruns/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=tekton.dev,resources=pipelineruns/finalizers,verbs=update
 
+// Reconcile is part of the main kubernetes reconciliation loop which aims to
+// move the current state of the cluster closer to the desired state.
 func (r *FactReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	correlationID := uuid.New().String()
 	ctx = context.WithValue(ctx, logx.CorrelationID, correlationID)
@@ -70,9 +73,10 @@ func (r *FactReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		log.Error(err, "failed to get Fact")
 		return ctrl.Result{}, err
 	}
+	log = log.WithValues("namespace", e.Namespace)
 	status := v1alpha1.FactStatus{PipelineRunName: pipelineruns.GetPipelinerunName(*e.Spec.EventID)}
 	var childPr tkn.PipelineRun
-	err = r.Get(ctx, types.NamespacedName{Namespace: req.Namespace, Name: status.PipelineRunName}, &childPr)
+	err = r.Get(ctx, types.NamespacedName{Namespace: e.Namespace, Name: status.PipelineRunName}, &childPr)
 	if client.IgnoreNotFound(err) != nil {
 		log.Error(err, "Unable to get PipelineRun")
 		return ctrl.Result{}, err
@@ -89,7 +93,7 @@ func (r *FactReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	log.V(1).Info("pipelinerun not found")
 	log.V(1).Info("getting all pipeline run")
 
-	if err = r.checkConcurrency(ctx, req.NamespacedName, pipelineruns.GetPipelinerunName(*e.Spec.EventID)); err != nil {
+	if err = r.checkConcurrency(ctx, req, e); err != nil {
 		return ctrl.Result{Requeue: true}, err
 	}
 
@@ -104,8 +108,8 @@ func (r *FactReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		}
 		return ctrl.Result{Requeue: true}, err
 	}
-	log.V(1).Info("update status", "status", v1alpha1.Pending, "step", "6")
-	status.State = v1alpha1.Pending
+	log.V(1).Info("update status", "status", pipelinev1alpha1.Pending.ToString(), "step", "6")
+	status.State = v1alpha1.State(pipelinev1alpha1.Pending.ToString())
 	if err = r.UpdateStatus(ctx, req.NamespacedName, status); err != nil {
 		log.Error(err, "update status failed")
 		return ctrl.Result{Requeue: true}, err
@@ -129,8 +133,7 @@ func (r *FactReconciler) UpdateStatus(ctx context.Context, nn types.NamespacedNa
 	log.V(1).Info("update status")
 	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		e := &v1alpha1.Fact{}
-		err := r.Get(ctx, nn, e)
-		if err != nil {
+		if err := r.Get(ctx, nn, e); err != nil {
 			return err
 		}
 		e.Status.State = status.State
@@ -142,7 +145,9 @@ func (r *FactReconciler) UpdateStatus(ctx context.Context, nn types.NamespacedNa
 			Reason:  string(status.State),
 			Message: status.Message,
 		})
-		err = r.Status().Update(ctx, e)
+		if err := r.Status().Update(ctx, e); err != nil {
+			log.Error(err, "update status failed")
+		}
 		return nil
 	})
 	return err
@@ -169,5 +174,5 @@ func (r *FactReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 func (r *FactReconciler) Scheme() *runtime.Scheme {
-	return r.FactScheme
+	return r.LocalScheme
 }

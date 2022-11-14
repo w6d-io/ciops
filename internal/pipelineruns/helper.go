@@ -18,8 +18,8 @@ package pipelineruns
 import (
 	"bytes"
 	"fmt"
-
 	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -46,7 +46,7 @@ func getObjectContain(obj runtime.Object) string {
 // Condition returns a kubernetes State
 func Condition(c v1beta1.Conditions) (status v1alpha1.State) {
 	if len(c) == 0 {
-		return "---"
+		return v1alpha1.State(pipelinev1alpha1.Pending.ToString())
 	}
 
 	switch c[0].Status {

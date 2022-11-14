@@ -1,22 +1,26 @@
----
 listen:
   metrics: ":8080"
   probe: ":8081"
-leader: true
-namespace: "" # cluster wide
-hooks:
-  - url: http://localhost:8001/test
-    scope: "end"
-pipelinerun_prefix: "pipelinerun"
-podTemplate:
-  nodeSelector:
-    role: spot
-  tolerations:
-    - effect: NoSchedule
-      key: spotInstance
-      operator: Equal
-      value: "true"
+leaderElection:
+  leaderElect: true
+  resourceName: ciops.ci.w6d.io
+pipelinerun:
+  prefix: "pipelinerun"
+  podTemplate:
+    nodeSelector:
+      role: spot
+    tolerations:
+      - effect: NoSchedule
+        key: spotInstance
+        operator: Equal
+        value: "true"
 workspaces:
-  - emptyDir: { }
+  - emptyDir: {}
     name: ws
-
+workspacePipelineTaskBinding:
+  - name: artifacts
+    subPath: artifacts
+    workspace: ws
+  - name: source
+    subPath: source
+    workspace: ws

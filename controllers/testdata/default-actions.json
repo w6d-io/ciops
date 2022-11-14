@@ -1,0 +1,257 @@
+{
+  "fields": [],
+  "actions": [
+    {
+      "id": "artefact-upload",
+      "displayName": "Upload Artefacts",
+      "name": "upload-artefacts",
+      "category": "artefact",
+      "image": "w6dio/s3cmd:v0.1.1",
+      "onError": "continue",
+      "env": [
+        {
+          "name": "W6D_CI_PROJECT_ID",
+          "valueFrom": {
+            "fieldRef": {
+              "fieldPath": "metadata.labels['pipeline.w6d.io/projectId']"
+            }
+          }
+        },
+        {
+          "name": "W6D_CI_PIPELINE_ID",
+          "valueFrom": {
+            "fieldRef": {
+              "fieldPath": "metadata.labels['pipeline.w6d.io/number']"
+            }
+          }
+        },
+        {
+          "name": "W6D_CI_PIPELINE_EVENT_ID",
+          "valueFrom": {
+            "fieldRef": {
+              "fieldPath": "metadata.labels['pipeline.w6d.io/event_id']"
+            }
+          }
+        }
+      ],
+      "script": "#!/usr/bin/env bash\nif [ ! -d \"$(workspaces.artifacts.path)\" ]\nthen\n  echo \"skipped: artifacts folder does not exist\"\n  exit 0\nfi\necho \"upload artifacts\"\ns3cmd put --force recursive $(workspaces.artifacts.path) s3://artifacts/${W6D_CI_PROJECT_ID}/${W6D_CI_PIPELINE_ID}/${W6D_CI_PIPELINE_EVENT_ID}\n"
+    },
+    {
+      "id": "artefact-download",
+      "displayName": "Download artefacts",
+      "name": "download-artefacts",
+      "category": "artifact",
+      "image": "w6dio/s3cmd:v0.1.1",
+      "onError": "continue",
+      "env": [
+        {
+          "name": "W6D_CI_PROJECT_ID",
+          "valueFrom": {
+            "fieldRef": {
+              "fieldPath": "metadata.labels['pipeline.w6d.io/projectId']"
+            }
+          }
+        },
+        {
+          "name": "W6D_CI_PIPELINE_ID",
+          "valueFrom": {
+            "fieldRef": {
+              "fieldPath": "metadata.labels['pipeline.w6d.io/number']"
+            }
+          }
+        },
+        {
+          "name": "W6D_CI_PIPELINE_EVENT_ID",
+          "valueFrom": {
+            "fieldRef": {
+              "fieldPath": "metadata.labels['pipeline.w6d.io/event_id']"
+            }
+          }
+        }
+      ],
+      "script": "if [ ! -d \"$(workspaces.artifacts.path)\" ]\nthen\n  echo \"skipped: artifacts folder does not exist\"\n  exit 0\nfi\nls -la $(workspaces.source.path)\necho \"get artifacts\"\ns3cmd get --force --recursive s3://artifacts/${W6D_CI_PROJECT_ID}/${W6D_CI_PIPELINE_ID}/${W6D_CI_PIPELINE_EVENT_ID} $(workspaces.artifacts.path)\necho \"got $(find $(workspaces.artifacts.path) -type f | wc -l) file(S)\"\n"
+    },
+    {
+      "id": "git-source",
+      "name": "git-source",
+      "category": "git",
+      "image": "gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.21.0",
+      "params": [
+        {
+          "default": "",
+          "description": "git url to clone",
+          "name": "repoUrl",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "description": "git revision to checkout (branch, tag, sha, ref…)",
+          "name": "revision",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "description": "(optional) git refspec to fetch before checking out revision",
+          "name": "refspec",
+          "type": "string"
+        },
+        {
+          "default": "true",
+          "description": "defines if the resource should initialize and fetch the submodules",
+          "name": "submodules",
+          "type": "string"
+        },
+        {
+          "default": "1",
+          "description": "performs a shallow clone where only the most recent commit(s) will be fetched",
+          "name": "depth",
+          "type": "string"
+        },
+        {
+          "default": "true",
+          "description": "defines if http.sslVerify should be set to true or false in the global git config",
+          "name": "sslVerify",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "description": "subdirectory inside the \"source\" workspace to clone the git repo into",
+          "name": "subdirectory",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "description": "defines which directories patterns to match or exclude when performing a sparse checkout",
+          "name": "sparseCheckoutDirectories",
+          "type": "string"
+        },
+        {
+          "default": "true",
+          "description": "clean out the contents of the repo's destination directory (if it already exists) before trying to clone the repo there",
+          "name": "deleteExisting",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "description": "git HTTP proxy server for non-SSL requests",
+          "name": "httpProxy",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "description": "git HTTPS proxy server for SSL requests",
+          "name": "httpsProxy",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "description": "git no proxy - opt out of proxying HTTP/HTTPS requests",
+          "name": "noProxy",
+          "type": "string"
+        },
+        {
+          "default": "false",
+          "description": "log the commands used during execution",
+          "name": "verbose",
+          "type": "string"
+        },
+        {
+          "default": "/tekton/home",
+          "name": "userHome",
+          "type": "string"
+        }
+      ],
+      "env": [
+        {
+          "name": "HOME",
+          "value": "$(params.userHome)"
+        },
+        {
+          "name": "PARAM_URL",
+          "value": "$(params.repoUrl)"
+        },
+        {
+          "name": "PARAM_REVISION",
+          "value": "$(params.revision)"
+        },
+        {
+          "name": "PARAM_REFSPEC",
+          "value": "$(params.refspec)"
+        },
+        {
+          "name": "PARAM_SUBMODULES",
+          "value": "$(params.submodules)"
+        },
+        {
+          "name": "PARAM_DEPTH",
+          "value": "$(params.depth)"
+        },
+        {
+          "name": "PARAM_SSL_VERIFY",
+          "value": "$(params.sslVerify)"
+        },
+        {
+          "name": "PARAM_SUBDIRECTORY",
+          "value": "$(params.subdirectory)"
+        },
+        {
+          "name": "PARAM_DELETE_EXISTING",
+          "value": "$(params.deleteExisting)"
+        },
+        {
+          "name": "PARAM_HTTP_PROXY",
+          "value": "$(params.httpProxy)"
+        },
+        {
+          "name": "PARAM_HTTPS_PROXY",
+          "value": "$(params.httpsProxy)"
+        },
+        {
+          "name": "PARAM_NO_PROXY",
+          "value": "$(params.noProxy)"
+        },
+        {
+          "name": "PARAM_VERBOSE",
+          "value": "$(params.verbose)"
+        },
+        {
+          "name": "PARAM_SPARSE_CHECKOUT_DIRECTORIES",
+          "value": "$(params.sparseCheckoutDirectories)"
+        },
+        {
+          "name": "PARAM_USER_HOME",
+          "value": "$(params.userHome)"
+        },
+        {
+          "name": "WORKSPACE_OUTPUT_PATH",
+          "value": "$(workspaces.source.path)"
+        },
+        {
+          "name": "WORKSPACE_SSH_DIRECTORY_BOUND",
+          "value": "$(workspaces.ssh-directory.bound)"
+        },
+        {
+          "name": "WORKSPACE_SSH_DIRECTORY_PATH",
+          "value": "$(workspaces.ssh-directory.path)"
+        },
+        {
+          "name": "WORKSPACE_BASIC_AUTH_DIRECTORY_BOUND",
+          "value": "$(workspaces.basic-auth.bound)"
+        },
+        {
+          "name": "WORKSPACE_BASIC_AUTH_DIRECTORY_PATH",
+          "value": "$(workspaces.basic-auth.path)"
+        },
+        {
+          "name": "WORKSPACE_SSL_CA_DIRECTORY_BOUND",
+          "value": "$(workspaces.ssl-ca-directory.bound)"
+        },
+        {
+          "name": "WORKSPACE_SSL_CA_DIRECTORY_PATH",
+          "value": "$(workspaces.ssl-ca-directory.path)"
+        }
+      ],
+      "script": "#!/usr/bin/env sh\nset -eu\nif [ \"${PARAM_VERBOSE}\" = \"true\" ] ; then\n  set -x\nfi\nif [ \"${WORKSPACE_BASIC_AUTH_DIRECTORY_BOUND}\" = \"true\" ] ; then\n  cp \"${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.git-credentials\" \"${PARAM_USER_HOME}/.git-credentials\"\n  cp \"${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.gitconfig\" \"${PARAM_USER_HOME}/.gitconfig\"\n  chmod 400 \"${PARAM_USER_HOME}/.git-credentials\"\n  chmod 400 \"${PARAM_USER_HOME}/.gitconfig\"\nfi\nif [ \"${WORKSPACE_SSH_DIRECTORY_BOUND}\" = \"true\" ] ; then\n  cp -R \"${WORKSPACE_SSH_DIRECTORY_PATH}\" \"${PARAM_USER_HOME}\"/.ssh\n  chmod 700 \"${PARAM_USER_HOME}\"/.ssh\n  chmod -R 400 \"${PARAM_USER_HOME}\"/.ssh/*\nfi\nif [ \"${WORKSPACE_SSL_CA_DIRECTORY_BOUND}\" = \"true\" ] ; then\n  export GIT_SSL_CAPATH=\"${WORKSPACE_SSL_CA_DIRECTORY_PATH}\"\nfi\nCHECKOUT_DIR=\"${WORKSPACE_OUTPUT_PATH}/${PARAM_SUBDIRECTORY}\"\ncleandir() {\n  # Delete any existing contents of the repo directory if it exists.\n  #\n  # We don't just \"rm -rf ${CHECKOUT_DIR}\" because ${CHECKOUT_DIR} might be \"/\"\n  # or the root of a mounted volume.\n  if [ -d \"${CHECKOUT_DIR}\" ] ; then\n    # Delete non-hidden files and directories\n    rm -rf \"${CHECKOUT_DIR:?}\"/*\n    # Delete files and directories starting with . but excluding ..\n    rm -rf \"${CHECKOUT_DIR}\"/.[!.]*\n    # Delete files and directories starting with .. plus any other character\n    rm -rf \"${CHECKOUT_DIR}\"/..?*\n  fi\n}\nif [ \"${PARAM_DELETE_EXISTING}\" = \"true\" ] ; then\n  cleandir\nfi\ntest -z \"${PARAM_HTTP_PROXY}\" || export HTTP_PROXY=\"${PARAM_HTTP_PROXY}\"\ntest -z \"${PARAM_HTTPS_PROXY}\" || export HTTPS_PROXY=\"${PARAM_HTTPS_PROXY}\"\ntest -z \"${PARAM_NO_PROXY}\" || export NO_PROXY=\"${PARAM_NO_PROXY}\"\necho \"get source\"\necho \"repository ${PARAM_URL}\"\necho \"commit ${PARAM_REVISION}\"\n/ko-app/git-init \\\n  -url=\"${PARAM_URL}\" \\\n  -revision=\"${PARAM_REVISION}\" \\\n  -refspec=\"${PARAM_REFSPEC}\" \\\n  -path=\"${CHECKOUT_DIR}\" \\\n  -sslVerify=\"${PARAM_SSL_VERIFY}\" \\\n  -submodules=\"${PARAM_SUBMODULES}\" \\\n  -depth=\"${PARAM_DEPTH}\" \\\n  -sparseCheckoutDirectories=\"${PARAM_SPARSE_CHECKOUT_DIRECTORIES}\"\ncd \"${CHECKOUT_DIR}\"\nRESULT_SHA=\"$(git rev-parse HEAD)\"\nEXIT_CODE=\"$?\"\nif [ \"${EXIT_CODE}\" != 0 ] ; then\n  exit \"${EXIT_CODE}\"\nfi\n"
+    }
+  ]
+}

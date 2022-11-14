@@ -1,0 +1,19 @@
+{
+  "fields": [],
+  "actions": [
+    {
+      "id": "gitleaks",
+      "name": "scan-and-report-leaks",
+      "category": "security",
+      "description": "scan your codebase (20 last commits) and reports leaks",
+      "icon": "https://w6d-public.s3.eu-west-3.amazonaws.com/pictures/gitleaks.png",
+      "fields": [],
+      "targets": {
+        "componentId": "project.componentId",
+        "ref": "actions.id"
+      },
+      "image": "w6dio/docker-gitleaks:v0.0.6",
+      "script": "#!/bin/sh\nset -e\nmkdir -p $(workspaces.artifacts.path)/git-leaks\ngitleaks --path=$(workspaces.source.path) --config-path=/run/configs/leaky-repo.toml -v --report=$(workspaces.artifacts.path)/git-leaks/report-pathsecretsscan.json --depth=5\necho -e \"\\e[32msuccess\""
+    }
+  ]
+}

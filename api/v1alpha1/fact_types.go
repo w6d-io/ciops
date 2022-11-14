@@ -17,16 +17,13 @@ limitations under the License.
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	pipeline "github.com/w6d-io/apis/pipeline/v1alpha1"
 )
 
 type Status int
 
 const (
-	// Pending means that the pipeline is waiting for start
-	Pending State = "Pending"
 
 	// Creating means that tekton resource creation is in progress
 	Creating State = "Creating"
@@ -52,6 +49,7 @@ const (
 
 const (
 	AnnotationSchedule = "ciops.ci.w6d.io/scheduled-at"
+	FactFinalizer      = "fact.ci.w6d.io/finalizer"
 )
 
 // TriggerSpec defines the trigger
@@ -66,9 +64,6 @@ type FactSpec struct {
 
 	// EventID id of the fact
 	EventID *int64 `json:"eventId,omitempty"`
-
-	// ProjectID id of the project
-	ProjectID pipeline.ProjectID `json:"projectId,omitempty"`
 
 	// PipelineRef is the id pipeline resource name
 	PipelineRef string `json:"pipelineRef"`
@@ -109,8 +104,8 @@ type FactSpec struct {
 	// Trigger
 	Trigger *TriggerSpec `json:"trigger,omitempty"`
 
-	// Pipeline is the pipeline payload
-	Pipeline *pipeline.Pipeline `json:"pipeline,omitempty"`
+	// PipelineSource is the pipeline payload
+	PipelineSource *corev1.LocalObjectReference `json:"pipeline,omitempty"`
 
 	// TODO to delete token for cloning
 	// Deprecated

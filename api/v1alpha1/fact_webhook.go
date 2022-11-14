@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	"context"
+	"knative.dev/pkg/apis"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -38,12 +39,18 @@ func (in *Fact) SetupWebhookWithManager(mgr ctrl.Manager) error {
 //+kubebuilder:webhook:path=/mutate-ci-w6d-io-v1alpha1-fact,mutating=true,failurePolicy=fail,sideEffects=None,groups=ci.w6d.io,resources=facts,verbs=create;update,versions=v1alpha1,name=mfact.kb.io,admissionReviewVersions=v1
 
 var _ webhook.Defaulter = &Fact{}
+var _ apis.Defaultable = &Fact{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (in *Fact) Default() {
 	factlog.Info("default", "name", in.Name)
 
-	// TODO(user): fill in your defaulting logic.
+	//TODO(user): fill in your defaulting logic.
+	// nothing to do
+}
+
+func (in *Fact) SetDefaults(_ context.Context) {
+	//TODO implement me
 	// nothing to do
 }
 
@@ -51,6 +58,11 @@ func (in *Fact) Default() {
 //+kubebuilder:webhook:path=/validate-ci-w6d-io-v1alpha1-fact,mutating=false,failurePolicy=fail,sideEffects=None,groups=ci.w6d.io,resources=facts,verbs=create;update,versions=v1alpha1,name=vfact.kb.io,admissionReviewVersions=v1
 
 var _ webhook.Validator = &Fact{}
+var _ apis.Validatable = &Fact{}
+
+func (in *Fact) Validate(_ context.Context) *apis.FieldError {
+	return ValidateFact(in.Name, in.Spec)
+}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (in *Fact) ValidateCreate() error {
@@ -60,10 +72,12 @@ func (in *Fact) ValidateCreate() error {
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *Fact) ValidateUpdate(old runtime.Object) error {
+func (in *Fact) ValidateUpdate(_ runtime.Object) error {
 	factlog.Info("validate update", "name", in.Name)
 
-	// TODO(user): fill in your validation logic upon object update.
+	//TODO(user):
+	// fill in your validation logic upon object update.
+
 	return nil
 }
 
@@ -71,6 +85,8 @@ func (in *Fact) ValidateUpdate(old runtime.Object) error {
 func (in *Fact) ValidateDelete() error {
 	factlog.Info("validate delete", "name", in.Name)
 
-	// TODO(user): fill in your validation logic upon object deletion.
+	//TODO(user):
+	// fill in your validation logic upon object deletion.
+
 	return nil
 }

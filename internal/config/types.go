@@ -24,12 +24,15 @@ const (
 	ViperKeyLeaderElect            = "leaderElection.leaderElect"
 	ViperKeyLeaderName             = "leaderElection.resourceName"
 	ViperKeyLeaderNamespace        = "leaderElection.namespace"
-	ViperKeyNamespace              = "namespace"
+	ViperKeyNamespacePrefix        = "namespace.prefix"
+	ViperKeyNamespaceScope         = "namespace.scope"
 	ViperKeyHooks                  = "hooks"
 	ViperKeyPipelinerun            = "pipelinerun"
 	ViperKeyPipelinerunPrefix      = "pipelinerun.prefix"
 	ViperKeyPipelinerunPodTemplate = "pipelinerun.podTemplate"
-	ViperKeyPipelinerunWorkspaces  = "pipelinerun.workspaces"
+	ViperKeyWorkspaces             = "workspaces"
+	ViperKeyExtraActions           = "extra.actions"
+	ViperKeyExtraDefaultActions    = "extra.defaultActions"
 )
 
 type Config struct {
@@ -45,14 +48,12 @@ type Config struct {
 		ResourceName string `json:"resourceName,omitempty" mapstructure:"resourceName"`
 		Namespace    string `json:"namespace,omitempty" mapstructure:"namespace"`
 	} `json:"leaderElection,omitempty" mapstructure:"leaderElection"`
+	Namespace struct {
+		Prefix string `json:"prefix" mapstructure:"prefix"`
+		Scope  string `json:"scope" mapstructure:"scope"`
+	} `json:"namespace" mapstructure:"namespace"`
 	Pipelinerun struct {
-		Prefix                       string                `json:"prefix,omitempty" mapstructure:"prefix"`
-		Workspaces                   []v1.WorkspaceBinding `json:"workspaces,omitempty" mapstructure:"workspaces"`
-		WorkspacePipelineTaskBinding []struct {
-			Name      string `json:"name,omitempty" mapstructure:"name"`
-			SubPath   string `json:"subPath,omitempty" mapstructure:"subPath"`
-			Workspace string `json:"workspace,omitempty" mapstructure:"workspace"`
-		} `json:"workspacePipelineTaskBinding,omitempty" mapstructure:"workspacePipelineTaskBinding"`
+		Prefix      string `json:"prefix,omitempty" mapstructure:"prefix"`
 		PodTemplate struct {
 			NodeSelector struct {
 				Role string `json:"role,omitempty" mapstructure:"role"`
@@ -65,5 +66,10 @@ type Config struct {
 			} `json:"tolerations,omitempty" mapstructure:"tolerations"`
 		} `json:"podTemplate,omitempty" mapstructure:"podTemplate"`
 	} `json:"pipelinerun,omitempty" mapstructure:"pipelinerun"`
-	Namespace string `json:"namespace,omitempty" mapstructure:"namespace"`
+	Workspaces                   []v1.WorkspaceBinding `json:"workspaces,omitempty" mapstructure:"workspaces"`
+	WorkspacePipelineTaskBinding []struct {
+		Name      string `json:"name,omitempty" mapstructure:"name"`
+		SubPath   string `json:"subPath,omitempty" mapstructure:"subPath"`
+		Workspace string `json:"workspace,omitempty" mapstructure:"workspace"`
+	} `json:"workspacePipelineTaskBinding,omitempty" mapstructure:"workspacePipelineTaskBinding"`
 }

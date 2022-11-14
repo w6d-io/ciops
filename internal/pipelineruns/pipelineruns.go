@@ -18,16 +18,18 @@ package pipelineruns
 import (
 	"context"
 	"fmt"
-	"k8s.io/apimachinery/pkg/types"
 	"time"
 
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/pod"
 	pipelinev1beta1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	notification "github.com/w6d-io/apis/notification/v1alpha1"
 	"github.com/w6d-io/ciops/api/v1alpha1"
+	"github.com/w6d-io/hook"
 	"github.com/w6d-io/x/logx"
 )
 
@@ -186,6 +188,28 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Fact) error {
 	if err != nil {
 		log.Error(err, "create or update failed", "operation", op)
 		return err
+	}
+	if op == controllerutil.OperationResultCreated {
+		_ = hook.Send(ctx, &notification.Notification{
+			Id:      ps.Spec.ProjectID.String(),
+			Type:    "notification",
+			Kind:    "project",
+			Scope:   []string{"*"},
+			Message: fmt.Sprintf("pipeline run created, eventId = %v", e.Spec.EventID),
+			Time:    time.Now().UnixMilli(),
+		}, "notification.pipelinerun.created")
+		_ = hook.Send(ctx, &ps, "ci-status.pipelinerun.created")
+
+	} else {
+		_ = hook.Send(ctx, &notification.Notification{
+			Id:      ps.Spec.ProjectID.String(),
+			Type:    "notification",
+			Kind:    "project",
+			Scope:   []string{"*"},
+			Message: fmt.Sprintf("pipeline run updated, eventId = %v", e.Spec.EventID),
+			Time:    time.Now().UnixMilli(),
+		}, "notification.pipelinerun.created")
+		_ = hook.Send(ctx, &ps, "ci-status.pipelinerun.updated")
 	}
 	log.Info("resource successfully reconciled", "operation", op)
 	return nil

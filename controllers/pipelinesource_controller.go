@@ -18,12 +18,15 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	notification "github.com/w6d-io/apis/notification/v1alpha1"
 	civ1alpha1 "github.com/w6d-io/ciops/api/v1alpha1"
 	"github.com/w6d-io/ciops/internal/namespaces"
 	"github.com/w6d-io/ciops/internal/pipelines"
 	"github.com/w6d-io/ciops/internal/tasks"
+	"github.com/w6d-io/hook"
 	"github.com/w6d-io/x/logx"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -34,6 +37,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"time"
 )
 
 // PipelineSourceReconciler reconciles a PipelineSource object
@@ -90,6 +94,15 @@ func (r *PipelineSourceReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		return ctrl.Result{Requeue: true}, err
 	}
 	log.Info("resources successfully reconciled")
+	_ = hook.Send(ctx, &notification.Notification{
+		Id:      e.Spec.ProjectID.String(),
+		Type:    "notification",
+		Kind:    "project",
+		Scope:   []string{"*"},
+		Message: fmt.Sprintf("all resources created for project_id = %v", e.Spec.ProjectID),
+		Time:    time.Now().UnixMilli(),
+	}, "notification.fact.resources.created")
+
 	return ctrl.Result{
 		Requeue: false,
 	}, nil

@@ -18,7 +18,10 @@ package pipelines
 import (
 	"context"
 	"fmt"
+	notification "github.com/w6d-io/apis/notification/v1alpha1"
 	"github.com/w6d-io/ciops/api/v1alpha1"
+	"github.com/w6d-io/hook"
+	"time"
 
 	"github.com/w6d-io/ciops/internal/namespaces"
 	"github.com/w6d-io/ciops/internal/tasks"
@@ -51,7 +54,24 @@ func Parse(ctx context.Context, r client.Client, tasks []tasks.Task, req *v1alph
 
 	if err := pipelineTekton.Build(ctx, r, req); err != nil {
 		log.Error(err, "build pipeline failed")
+		_ = hook.Send(ctx, &notification.Notification{
+			Id:      req.Spec.ProjectID.String(),
+			Type:    "notification",
+			Kind:    "project",
+			Scope:   []string{"*"},
+			Message: fmt.Sprintf("failed to create pipeline %s", req.Spec.ID),
+			Time:    time.Now().UnixMilli(),
+		}, "notification.fact.pipeline.failed")
 		return err
 	}
+	_ = hook.Send(ctx, &notification.Notification{
+		Id:      req.Spec.ProjectID.String(),
+		Type:    "notification",
+		Kind:    "project",
+		Scope:   []string{"*"},
+		Message: fmt.Sprintf("pipeline %s created", req.Spec.ID),
+		Time:    time.Now().UnixMilli(),
+	}, "notification.fact.pipeline.created")
+
 	return nil
 }

@@ -17,38 +17,38 @@ limitations under the License.
 package v1alpha1
 
 import (
-    pipelinev1beta1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
-    pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
-    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	pipelinev1beta1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // PipelineSourceStatus defines the observed state of PipelineSource
 type PipelineSourceStatus struct {
 
-    // Tasks contains the list of task created
-    // +optional
-    Tasks []string `json:"tasks,omitempty"`
+	// Tasks contains the list of task created
+	// +optional
+	Tasks []string `json:"tasks,omitempty"`
 
-    // ConditionTasks contains the list of conditions task created
-    // +optional
-    ConditionTasks []string `json:"conditionTasks,omitempty"`
+	// ConditionTasks contains the list of conditions task created
+	// +optional
+	ConditionTasks []string `json:"conditionTasks,omitempty"`
 
-    // PipelineName contains the name of pipeline resource created
-    // +optional
-    PipelineName string `json:"pipelineName,omitempty"`
+	// PipelineName contains the name of pipeline resource created
+	// +optional
+	PipelineName string `json:"pipelineName,omitempty"`
 
-    // State contains the current state of this Play resource.
-    // States Running, Failed, Succeeded, Errored
-    // +optional
-    State metav1.ConditionStatus `json:"state,omitempty"`
+	// State contains the current state of this Play resource.
+	// States Running, Failed, Succeeded, Errored
+	// +optional
+	State metav1.ConditionStatus `json:"state,omitempty"`
 
-    // Message contains the pipeline message
-    // +optional
-    Message string `json:"message,omitempty"`
+	// Message contains the pipeline message
+	// +optional
+	Message string `json:"message,omitempty"`
 
-    // Conditions represents the latest available observations of PipelineSource
-    // +optional
-    Conditions []metav1.Condition `json:"conditions,omitempty"`
+	// Conditions represents the latest available observations of PipelineSource
+	// +optional
+	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
 //+kubebuilder:object:root=true
@@ -60,61 +60,61 @@ type PipelineSourceStatus struct {
 
 // PipelineSource is the Schema for the pipelinesources API
 type PipelineSource struct {
-    metav1.TypeMeta   `json:",inline"`
-    metav1.ObjectMeta `json:"metadata,omitempty"`
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-    Spec   pipelinev1alpha1.Pipeline `json:"spec,omitempty"`
-    Status PipelineSourceStatus      `json:"status,omitempty"`
+	Spec   pipelinev1alpha1.Pipeline `json:"spec,omitempty"`
+	Status PipelineSourceStatus      `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
 // PipelineSourceList contains a list of PipelineSource
 type PipelineSourceList struct {
-    metav1.TypeMeta `json:",inline"`
-    metav1.ListMeta `json:"metadata,omitempty"`
-    Items           []PipelineSource `json:"items"`
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+	Items           []PipelineSource `json:"items"`
 }
 
 // Step marshalling structure
 type Step struct {
-    pipelinev1beta1.Step `json:",inline"`
-    DisplayName          string                                 `json:"displayName,omitempty"`
-    ID                   string                                 `json:"id,omitempty"`
-    Category             string                                 `json:"category,omitempty"`
-    Description          string                                 `json:"description,omitempty"`
-    Icon                 string                                 `json:"icon,omitempty"`
-    Fields               []string                               `json:"fields,omitempty"`
-    Params               []pipelinev1beta1.ParamSpec            `json:"params,omitempty"`
-    Workspaces           []pipelinev1beta1.WorkspaceDeclaration `json:"workspaces,omitempty"`
+	pipelinev1beta1.Step `json:",inline"`
+	DisplayName          string                                 `json:"displayName,omitempty"`
+	ID                   string                                 `json:"id,omitempty"`
+	Category             string                                 `json:"category,omitempty"`
+	Description          string                                 `json:"description,omitempty"`
+	Icon                 string                                 `json:"icon,omitempty"`
+	Fields               []string                               `json:"fields,omitempty"`
+	Params               []pipelinev1beta1.ParamSpec            `json:"params,omitempty"`
+	Workspaces           []pipelinev1beta1.WorkspaceDeclaration `json:"workspaces,omitempty"`
 }
 type Option string
 
 type Validation struct {
-    ValueType string `json:"valueType,omitempty"`
-    MaxLength int    `json:"maxLength,omitempty"`
+	ValueType string `json:"valueType,omitempty"`
+	MaxLength int    `json:"maxLength,omitempty"`
 }
 
 type Documentation struct {
-    Link string `json:"link,omitempty"`
+	Link string `json:"link,omitempty"`
 }
 
 type Field struct {
-    ID                 string        `json:"id,omitempty"`
-    Name               string        `json:"name,omitempty"`
-    Description        string        `json:"description,omitempty"`
-    ReadOnly           bool          `json:"readOnly,omitempty"`
-    Visibility         bool          `json:"visibility,omitempty"`
-    Duplicate          bool          `json:"duplicate,omitempty"`
-    DefaultValue       string        `json:"defaultValue,omitempty"`
-    Options            []Option      `json:"options,omitempty"`
-    Value              string        `json:"value,omitempty"`
-    RestrictedValues   []string      `json:"restrictedValues,omitempty"`
-    AutocompleteValues []string      `json:"autocompleteValues,omitempty"`
-    Validations        Validation    `json:"validations,omitempty"`
-    Documentations     Documentation `json:"documentations,omitempty"`
+	ID                 string        `json:"id,omitempty"`
+	Name               string        `json:"name,omitempty"`
+	Description        string        `json:"description,omitempty"`
+	ReadOnly           bool          `json:"readOnly,omitempty"`
+	Visibility         bool          `json:"visibility,omitempty"`
+	Duplicate          bool          `json:"duplicate,omitempty"`
+	DefaultValue       string        `json:"defaultValue,omitempty"`
+	Options            []Option      `json:"options,omitempty"`
+	Value              string        `json:"value,omitempty"`
+	RestrictedValues   []string      `json:"restrictedValues,omitempty"`
+	AutocompleteValues []string      `json:"autocompleteValues,omitempty"`
+	Validations        Validation    `json:"validations,omitempty"`
+	Documentations     Documentation `json:"documentations,omitempty"`
 }
 
 func init() {
-    SchemeBuilder.Register(&PipelineSource{}, &PipelineSourceList{})
+	SchemeBuilder.Register(&PipelineSource{}, &PipelineSourceList{})
 }

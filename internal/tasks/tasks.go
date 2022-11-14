@@ -18,9 +18,12 @@ package tasks
 import (
 	"context"
 	"fmt"
+	notification "github.com/w6d-io/apis/notification/v1alpha1"
+	"github.com/w6d-io/hook"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	pkgtypes "k8s.io/apimachinery/pkg/types"
 	"strings"
+	"time"
 
 	pipelinev1beta1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -65,6 +68,14 @@ func (t *Tasks) Parse(ctx context.Context, r client.Client, ps *v1alpha1.Pipelin
 				cond.labels["stage.w6d.io/id"] = strings.ReplaceAll(stage.ID, " ", "_")
 				cond.labels["stage.w6d.io/name"] = strings.ReplaceAll(stage.Name, " ", "_")
 				if err := cond.Build(ctx, r, ps); err != nil && !errors.IsAlreadyExists(err) {
+					_ = hook.Send(ctx, &notification.Notification{
+						Id:      ps.Spec.ProjectID.String(),
+						Type:    "notification",
+						Kind:    "project",
+						Scope:   []string{"*"},
+						Message: fmt.Sprintf("failed to create condition %s", cond.name),
+						Time:    time.Now().UnixMilli(),
+					}, "notification.fact.condition.failed")
 					log.Error(err, "failed to build condition", "name", cond.name)
 					return err
 				}
@@ -88,6 +99,15 @@ func (t *Tasks) Parse(ctx context.Context, r client.Client, ps *v1alpha1.Pipelin
 				}); err != nil {
 					log.Error(err, "failed to update status")
 				}
+				_ = hook.Send(ctx, &notification.Notification{
+					Id:      ps.Spec.ProjectID.String(),
+					Type:    "notification",
+					Kind:    "project",
+					Scope:   []string{"*"},
+					Message: fmt.Sprintf("condition %s created", task.Name),
+					Time:    time.Now().UnixMilli(),
+				}, "notification.fact.condition.created")
+
 			}
 			if len(task.Actions) == 0 {
 				log.V(2).Info("no action found", "task_id", task.ID, "task_name", task.Name)
@@ -158,8 +178,25 @@ func (t *Tasks) Parse(ctx context.Context, r client.Client, ps *v1alpha1.Pipelin
 				}
 			}
 			if err := taskTekton.Build(ctx, r, ps); err != nil && !errors.IsAlreadyExists(err) {
+				_ = hook.Send(ctx, &notification.Notification{
+					Id:      ps.Spec.ProjectID.String(),
+					Type:    "notification",
+					Kind:    "project",
+					Scope:   []string{"*"},
+					Message: fmt.Sprintf("failed to create task %s", task.Name),
+					Time:    time.Now().UnixMilli(),
+				}, "notification.fact.task.failed")
 				return err
 			}
+			_ = hook.Send(ctx, &notification.Notification{
+				Id:      ps.Spec.ProjectID.String(),
+				Type:    "notification",
+				Kind:    "project",
+				Scope:   []string{"*"},
+				Message: fmt.Sprintf("task %s created", task.Name),
+				Time:    time.Now().UnixMilli(),
+			}, "notification.fact.task.created")
+
 			if err := taskTekton.UpdateStatus(ctx, r, pkgtypes.NamespacedName{
 				Namespace: ps.Namespace,
 				Name:      ps.Name,

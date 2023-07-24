@@ -18,16 +18,15 @@ package pipelineruns
 import (
 	"bytes"
 	"fmt"
+	v1 "knative.dev/pkg/apis/duck/v1"
 
 	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 
+	"github.com/w6d-io/ciops/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 	"k8s.io/client-go/kubernetes/scheme"
-	"knative.dev/pkg/apis/duck/v1beta1"
-
-	"github.com/w6d-io/ciops/api/v1alpha1"
 )
 
 func GetPipelinerunName(id int64) string {
@@ -44,7 +43,7 @@ func getObjectContain(obj runtime.Object) string {
 }
 
 // Condition returns a kubernetes State
-func Condition(c v1beta1.Conditions) (status v1alpha1.State) {
+func Condition(c v1.Conditions) (status v1alpha1.State) {
 	if len(c) == 0 {
 		return "---"
 	}
@@ -66,7 +65,7 @@ func Condition(c v1beta1.Conditions) (status v1alpha1.State) {
 }
 
 // Message returns a kubernetes Message
-func Message(c v1beta1.Conditions) string {
+func Message(c v1.Conditions) string {
 	if len(c) == 0 {
 		return ""
 	}

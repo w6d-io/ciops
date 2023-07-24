@@ -18,58 +18,59 @@ package config
 import v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 
 const (
-	ViperKeyMetricsListen          = "listen.metrics"
-	ViperKeyWebhookListen          = "listen.webhook"
-	ViperKeyProbeListen            = "listen.probe"
-	ViperKeyLeaderElect            = "leaderElection.leaderElect"
-	ViperKeyLeaderName             = "leaderElection.resourceName"
-	ViperKeyLeaderNamespace        = "leaderElection.namespace"
-	ViperKeyNamespacePrefix        = "namespace.prefix"
-	ViperKeyNamespaceScope         = "namespace.scope"
-	ViperKeyHooks                  = "hooks"
-	ViperKeyPipelinerun            = "pipelinerun"
-	ViperKeyPipelinerunPrefix      = "pipelinerun.prefix"
-	ViperKeyPipelinerunPodTemplate = "pipelinerun.podTemplate"
-	ViperKeyWorkspaces             = "workspaces"
-	ViperKeyExtraActions           = "extra.actions"
-	ViperKeyExtraDefaultActions    = "extra.defaultActions"
+    ViperKeyMetricsListen          = "listen.metrics"
+    ViperKeyWebhookListen          = "listen.webhook"
+    ViperKeyProbeListen            = "listen.probe"
+    ViperKeyLeaderElect            = "leaderElection.leaderElect"
+    ViperKeyLeaderName             = "leaderElection.resourceName"
+    ViperKeyLeaderNamespace        = "leaderElection.namespace"
+    ViperKeyNamespacePrefix        = "namespace.prefix"
+    ViperKeyNamespaceScope         = "namespace.scope"
+    ViperKeyHooks                  = "hooks"
+    ViperKeyPipelinerun            = "pipelinerun"
+    ViperKeyPipelinerunPrefix      = "pipelinerun.prefix"
+    ViperKeyPipelinerunPodTemplate = "pipelinerun.podTemplate"
+    ViperKeyWorkspaces             = "workspaces"
+    ViperKeyExtraActions           = "extra.actions"
+    ViperKeyExtraDefaultActions    = "extra.defaultActions"
 )
 
 type Config struct {
-	Listen struct {
-		Metrics string `json:"metrics,omitempty" mapstructure:"metrics"`
-		Probe   string `json:"probe,omitempty" mapstructure:"probe"`
-	} `json:"listen,omitempty" mapstructure:"listen"`
-	Webhook struct {
-		Port int `json:"port,omitempty" mapstructure:"port"`
-	} `json:"webhook,omitempty" mapstructure:"webhook"`
-	LeaderElection struct {
-		LeaderElect  bool   `json:"leaderElect,omitempty" mapstructure:"leaderElect"`
-		ResourceName string `json:"resourceName,omitempty" mapstructure:"resourceName"`
-		Namespace    string `json:"namespace,omitempty" mapstructure:"namespace"`
-	} `json:"leaderElection,omitempty" mapstructure:"leaderElection"`
-	Namespace struct {
-		Prefix string `json:"prefix" mapstructure:"prefix"`
-		Scope  string `json:"scope" mapstructure:"scope"`
-	} `json:"namespace" mapstructure:"namespace"`
-	Pipelinerun struct {
-		Prefix      string `json:"prefix,omitempty" mapstructure:"prefix"`
-		PodTemplate struct {
-			NodeSelector struct {
-				Role string `json:"role,omitempty" mapstructure:"role"`
-			} `json:"nodeSelector,omitempty" mapstructure:"nodeSelector"`
-			Tolerations []struct {
-				Effect   string `json:"effect,omitempty" mapstructure:"effect"`
-				Key      string `json:"key,omitempty" mapstructure:"key"`
-				Operator string `json:"operator,omitempty" mapstructure:"operator"`
-				Value    string `json:"value,omitempty" mapstructure:"value"`
-			} `json:"tolerations,omitempty" mapstructure:"tolerations"`
-		} `json:"podTemplate,omitempty" mapstructure:"podTemplate"`
-	} `json:"pipelinerun,omitempty" mapstructure:"pipelinerun"`
-	Workspaces                   []v1.WorkspaceBinding `json:"workspaces,omitempty" mapstructure:"workspaces"`
-	WorkspacePipelineTaskBinding []struct {
-		Name      string `json:"name,omitempty" mapstructure:"name"`
-		SubPath   string `json:"subPath,omitempty" mapstructure:"subPath"`
-		Workspace string `json:"workspace,omitempty" mapstructure:"workspace"`
-	} `json:"workspacePipelineTaskBinding,omitempty" mapstructure:"workspacePipelineTaskBinding"`
+    Listen struct {
+        Metrics string `json:"metrics,omitempty" mapstructure:"metrics"`
+        Probe   string `json:"probe,omitempty" mapstructure:"probe"`
+    } `json:"listen,omitempty" mapstructure:"listen"`
+    Webhook struct {
+        Port int `json:"port,omitempty" mapstructure:"port"`
+    } `json:"webhook,omitempty" mapstructure:"webhook"`
+    LeaderElection struct {
+        LeaderElect  bool   `json:"leaderElect,omitempty" mapstructure:"leaderElect"`
+        ResourceName string `json:"resourceName,omitempty" mapstructure:"resourceName"`
+        Namespace    string `json:"namespace,omitempty" mapstructure:"namespace"`
+    } `json:"leaderElection,omitempty" mapstructure:"leaderElection"`
+    Namespace struct {
+        Prefix string `json:"prefix" mapstructure:"prefix"`
+        Scope  string `json:"scope" mapstructure:"scope"`
+    } `json:"namespace" mapstructure:"namespace"`
+    Pipelinerun struct {
+        Prefix      string `json:"prefix,omitempty" mapstructure:"prefix"`
+        PodTemplate struct {
+            NodeSelector struct {
+                Role string `json:"role,omitempty" mapstructure:"role"`
+            } `json:"nodeSelector,omitempty" mapstructure:"nodeSelector"`
+            Tolerations []struct {
+                Effect   string `json:"effect,omitempty" mapstructure:"effect"`
+                Key      string `json:"key,omitempty" mapstructure:"key"`
+                Operator string `json:"operator,omitempty" mapstructure:"operator"`
+                Value    string `json:"value,omitempty" mapstructure:"value"`
+            } `json:"tolerations,omitempty" mapstructure:"tolerations"`
+        } `json:"podTemplate,omitempty" mapstructure:"podTemplate"`
+    } `json:"pipelinerun,omitempty" mapstructure:"pipelinerun"`
+    Workspaces                   []v1.WorkspaceBinding `json:"workspaces,omitempty" mapstructure:"workspaces"`
+    WorkspacePipelineTaskBinding []struct {
+        Name      string `json:"name,omitempty" mapstructure:"name"`
+        SubPath   string `json:"subPath,omitempty" mapstructure:"subPath"`
+        Workspace string `json:"workspace,omitempty" mapstructure:"workspace"`
+    } `json:"workspacePipelineTaskBinding,omitempty" mapstructure:"workspacePipelineTaskBinding"`
+    Hooks []Hook `json:"hooks" mapstructure:"hooks"`
 }

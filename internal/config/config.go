@@ -37,12 +37,6 @@ var (
 	// Version of application
 	Version string
 
-	// Revision is the commit of this version
-	Revision string
-
-	// Built is the timestamp od this version
-	Built string
-
 	// CfgFile contain the path of the config file
 	CfgFile string
 
@@ -58,8 +52,8 @@ func setDefault() {
 	viper.SetDefault(ViperKeyProbeListen, ":8081")
 	viper.SetDefault(ViperKeyLeaderName, "ciops.ci.w6d.io")
 	viper.SetDefault(ViperKeyLeaderElect, false)
-	viper.SetDefault(ViperKeyWebhookListen, 9443)
-	viper.SetDefault(ViperKeyNamespace, false)
+	viper.SetDefault(ViperKeyWebhookPort, 9443)
+	viper.SetDefault(ViperKeyWebhookHost, "")
 	viper.SetDefault(ViperKeyPipelinerunPrefix, "pipelinerun")
 }
 

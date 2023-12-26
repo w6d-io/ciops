@@ -18,18 +18,16 @@ package config
 import v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 
 const (
-	ViperKeyMetricsListen          = "listen.metrics"
-	ViperKeyWebhookListen          = "listen.webhook"
-	ViperKeyProbeListen            = "listen.probe"
-	ViperKeyLeaderElect            = "leaderElection.leaderElect"
-	ViperKeyLeaderName             = "leaderElection.resourceName"
-	ViperKeyLeaderNamespace        = "leaderElection.namespace"
-	ViperKeyNamespace              = "namespace"
-	ViperKeyHooks                  = "hooks"
-	ViperKeyPipelinerun            = "pipelinerun"
-	ViperKeyPipelinerunPrefix      = "pipelinerun.prefix"
-	ViperKeyPipelinerunPodTemplate = "pipelinerun.podTemplate"
-	ViperKeyPipelinerunWorkspaces  = "pipelinerun.workspaces"
+	ViperKeyMetricsListen     = "listen.metrics"
+	ViperKeyProbeListen       = "listen.probe"
+	ViperKeyWebhookPort       = "webhook.port"
+	ViperKeyWebhookHost       = "webhook.host"
+	ViperKeyLeaderElect       = "leaderElection.leaderElect"
+	ViperKeyLeaderName        = "leaderElection.resourceName"
+	ViperKeyLeaderNamespace   = "leaderElection.namespace"
+	ViperKeyHooks             = "hooks"
+	ViperKeyPipelinerun       = "pipelinerun"
+	ViperKeyPipelinerunPrefix = "pipelinerun.prefix"
 )
 
 type Config struct {
@@ -38,7 +36,8 @@ type Config struct {
 		Probe   string `json:"probe,omitempty" mapstructure:"probe"`
 	} `json:"listen,omitempty" mapstructure:"listen"`
 	Webhook struct {
-		Port int `json:"port,omitempty" mapstructure:"port"`
+		Host string `json:"host,omitempty" mapstructure:"host"`
+		Port int    `json:"port,omitempty" mapstructure:"port"`
 	} `json:"webhook,omitempty" mapstructure:"webhook"`
 	LeaderElection struct {
 		LeaderElect  bool   `json:"leaderElect,omitempty" mapstructure:"leaderElect"`

@@ -32,8 +32,8 @@ import (
 
 type LocalConfig struct {
 	Template          *pod.PodTemplate              `json:"podTemplate" mapstructure:"podTemplate"`
-	WB                []pipelinev1.WorkspaceBinding `json:"workspaces" mapstructure:"workspaces"`
-	PipelinerunPrefix string                        `json:"pipelinerunPrefix" mapstructure:"prefix"`
+	WB                []pipelinev1.WorkspaceBinding `json:"workspaces"  mapstructure:"workspaces"`
+	PipelinerunPrefix string                        `json:"prefix"      mapstructure:"prefix"`
 }
 
 var (

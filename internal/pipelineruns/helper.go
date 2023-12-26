@@ -18,9 +18,9 @@ package pipelineruns
 import (
 	"bytes"
 	"fmt"
-	v1 "knative.dev/pkg/apis/duck/v1"
 
 	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	v1 "knative.dev/pkg/apis/duck/v1"
 
 	"github.com/w6d-io/ciops/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"

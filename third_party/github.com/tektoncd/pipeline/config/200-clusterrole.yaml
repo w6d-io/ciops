@@ -51,9 +51,9 @@ rules:
   - apiGroups: [""]
     resources: ["pods", "persistentvolumeclaims"]
     verbs: ["get", "list", "create", "update", "delete", "patch", "watch"]
-  # Write permissions to publish facts.
+  # Write permissions to publish events.
   - apiGroups: [""]
-    resources: ["facts"]
+    resources: ["events"]
     verbs: ["create", "update", "patch"]
   # Read-only access to these.
   - apiGroups: [""]

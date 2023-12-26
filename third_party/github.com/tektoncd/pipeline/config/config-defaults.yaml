@@ -62,12 +62,12 @@ data:
     # that one.
     # default-affinity-assistant-pod-template:
 
-    # default-cloud-facts-sink contains the default CloudEvents sink to be
+    # default-cloud-events-sink contains the default CloudEvents sink to be
     # used for TaskRun and PipelineRun, when no sink is specified.
     # Note that right now it is still not possible to set a PipelineRun or
     # TaskRun specific sink, so the default is the only option available.
     # If no sink is specified, no CloudEvent is generated
-    # default-cloud-facts-sink:
+    # default-cloud-events-sink:
 
     # default-task-run-workspace-binding contains the default workspace
     # configuration provided for any Workspaces that a Task declares

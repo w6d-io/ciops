@@ -19,20 +19,21 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation/field"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
 	pipeline "github.com/w6d-io/apis/pipeline/v1alpha1"
 )
 
-func ValidateFact(name string, fact FactSpec) error {
+func ValidateFact(name string, fact FactSpec) (admission.Warnings, error) {
 	var allErrs field.ErrorList
 
 	allErrs = append(allErrs, ValidateFactSpec(fact)...)
 	allErrs = append(allErrs, ValidateTrigger(fact.Trigger)...)
 	allErrs = append(allErrs, ValidatePipeline(fact.Pipeline)...)
 	if len(allErrs) == 0 {
-		return nil
+		return nil, nil
 	}
-	return apierrors.NewInvalid(schema.GroupKind{
+	return nil, apierrors.NewInvalid(schema.GroupKind{
 		Group: GroupVersion.String(),
 		Kind:  "Fact",
 	}, name, allErrs)

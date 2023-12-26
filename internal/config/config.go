@@ -18,10 +18,6 @@ package config
 import (
 	"context"
 	"encoding/json"
-	"github.com/w6d-io/ciops/internal/actions"
-	"github.com/w6d-io/ciops/internal/namespaces"
-	"github.com/w6d-io/ciops/internal/pipelines"
-	"github.com/w6d-io/ciops/internal/tasks"
 	"os"
 	"path/filepath"
 	"strings"
@@ -30,8 +26,12 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
+	"github.com/w6d-io/ciops/internal/actions"
 	"github.com/w6d-io/ciops/internal/embedx"
+	"github.com/w6d-io/ciops/internal/namespaces"
 	"github.com/w6d-io/ciops/internal/pipelineruns"
+	"github.com/w6d-io/ciops/internal/pipelines"
+	"github.com/w6d-io/ciops/internal/tasks"
 	"github.com/w6d-io/jsonschema"
 	"github.com/w6d-io/x/cmdx"
 	"github.com/w6d-io/x/logx"

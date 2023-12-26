@@ -30,20 +30,17 @@ import (
 	"github.com/w6d-io/x/logx"
 )
 
-type Wks struct {
-	WB []pipelinev1.WorkspaceBinding `json:"workspaces"`
-}
-type Pod struct {
-	Template *pod.PodTemplate `json:"podTemplate"`
+type LocalConfig struct {
+	Template          *pod.PodTemplate              `json:"podTemplate" mapstructure:"podTemplate"`
+	WB                []pipelinev1.WorkspaceBinding `json:"workspaces" mapstructure:"workspaces"`
+	PipelinerunPrefix string                        `json:"pipelinerunPrefix" mapstructure:"prefix"`
 }
 
 var (
-	PodTemplate       Pod
-	Workspace         Wks
-	PipelinerunPrefix string
+	LC LocalConfig
 )
 
-func Build(ctx context.Context, r client.Client, e *v1alpha1.Event) error {
+func Build(ctx context.Context, r client.Client, e *v1alpha1.Fact) error {
 	eSpec := e.Spec
 	log := logx.WithName(ctx, "pipelinerun.Build").WithValues("pipelinerun", GetPipelinerunName(*eSpec.EventID), "namespace", e.Namespace)
 	log.V(1).Info("build pipelinerun")
@@ -142,8 +139,9 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Event) error {
 
 	resource := &pipelinev1.PipelineRun{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      GetPipelinerunName(*eSpec.EventID),
-			Namespace: e.Namespace,
+			Name:        GetPipelinerunName(*eSpec.EventID),
+			Namespace:   e.Namespace,
+			Annotations: map[string]string{},
 			Labels: map[string]string{
 				"pipeline.w6d.io/event_id":    fmt.Sprintf("%d", *eSpec.EventID),
 				"pipeline.w6d.io/name":        fmt.Sprintf("pipelinerun-%d", *eSpec.EventID),
@@ -155,9 +153,9 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Event) error {
 	}
 	resource.Annotations[v1alpha1.AnnotationSchedule] = time.Now().Format(time.RFC3339)
 
-	log.V(2).Info(resource.Kind, "content", fmt.Sprintf("%v",
-		getObjectContain(resource)))
-
+	if err := controllerutil.SetControllerReference(e, resource, r.Scheme()); err != nil {
+		return err
+	}
 	op, err := controllerutil.CreateOrUpdate(ctx, r, resource, func() error {
 		//if resource.CreationTimestamp.IsZero() {
 		//    log.Info("")
@@ -168,13 +166,15 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Event) error {
 			},
 			Params: params,
 			TaskRunTemplate: pipelinev1.PipelineTaskRunTemplate{
-				PodTemplate:        PodTemplate.Template,
+				PodTemplate:        LC.Template,
 				ServiceAccountName: "default",
 			},
-			Workspaces: Workspace.WB,
+			Workspaces: LC.WB,
 		}
 		return nil
 	})
+	log.V(2).Info(resource.Kind, "content", fmt.Sprintf("%v",
+		getObjectContain(resource)))
 	if err != nil {
 		log.Error(err, "create or update failed", "operation", op)
 		return err

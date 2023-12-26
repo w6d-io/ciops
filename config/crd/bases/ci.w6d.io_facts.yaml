@@ -3,16 +3,16 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: (unknown)
+    controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
-  name: events.ci.w6d.io
+  name: facts.ci.w6d.io
 spec:
   group: ci.w6d.io
   names:
-    kind: Event
-    listKind: EventList
-    plural: events
-    singular: event
+    kind: Fact
+    listKind: FactList
+    plural: facts
+    singular: fact
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -37,7 +37,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Event is the Schema for the events API
+        description: Fact is the Schema for the facts API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -52,7 +52,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: EventSpec defines the desired state of Event
+            description: FactSpec defines the desired state of Fact
             properties:
               added:
                 description: Added is the list of files that have been added in this
@@ -61,16 +61,16 @@ spec:
                   type: string
                 type: array
               beforeSha:
-                description: BeforeSha is the previous commit sha for this event
+                description: BeforeSha is the previous commit sha for this fact
                 type: string
               commit:
-                description: Commit project for this event
+                description: Commit project for this fact
                 type: string
               commitMessage:
-                description: CommitMessage is the message of this commit event
+                description: CommitMessage is the message of this commit fact
                 type: string
               eventId:
-                description: EventID id of the event
+                description: EventID id of the fact
                 format: int64
                 type: integer
               modified:
@@ -297,10 +297,10 @@ spec:
                 description: ProjectURL url of the project
                 type: string
               providerId:
-                description: ProviderId is the id of the provider that send this event
+                description: ProviderId is the id of the provider that send this fact
                 type: string
               ref:
-                description: Ref is project reference for this event
+                description: Ref is project reference for this fact
                 type: string
               removed:
                 description: Removed is the list of files that have been removed in
@@ -328,7 +328,7 @@ spec:
             - pipelineRef
             type: object
           status:
-            description: EventStatus defines the observed state of Event
+            description: FactStatus defines the observed state of Fact
             properties:
               conditions:
                 description: Conditions represents the latest available observations

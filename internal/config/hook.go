@@ -19,6 +19,7 @@ import (
 	"context"
 	"net/url"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 
 	"github.com/w6d-io/hook"
@@ -36,12 +37,13 @@ func hookSubscription() error {
 	log := logx.WithName(nil, "Hook.Subscription")
 	if err := viper.UnmarshalKey(ViperKeyHooks, &hooks); err != nil {
 		log.Error(err, "unmarshalling hook failed")
-		return errorx.New(err, "unmarshalling hook failed")
+		return errorx.Wrap(err, "unmarshalling hook failed")
 	}
 	log.V(2).Info("subscripting", "count", len(hooks))
 	for _, h := range hooks {
 		if err := hook.Subscribe(context.Background(), h.URL, h.Scope); err != nil {
-			if e, ok := err.(*url.Error); ok {
+			var e *url.Error
+			if errors.As(err, &e) {
 				if e.Op == "parse" {
 					log.Error(err, "subscription failed", "scope", h.Scope)
 				} else {
@@ -50,7 +52,7 @@ func hookSubscription() error {
 				}
 				return errorx.Wrap(e, "subscription failed")
 			}
-			return errorx.New(err, "subscription failed")
+			return errorx.Wrap(err, "subscription failed")
 		}
 		URL, _ := url.Parse(h.URL)
 		log.Info("subscription", "url", URL.Redacted(), "scope", h.Scope)

@@ -11,9 +11,9 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /mutate-ci-w6d-io-v1alpha1-event
+      path: /mutate-ci-w6d-io-v1alpha1-fact
   failurePolicy: Fail
-  name: mevent.kb.io
+  name: mfact.kb.io
   rules:
   - apiGroups:
     - ci.w6d.io
@@ -23,7 +23,7 @@ webhooks:
     - CREATE
     - UPDATE
     resources:
-    - events
+    - facts
   sideEffects: None
 ---
 apiVersion: admissionregistration.k8s.io/v1
@@ -38,9 +38,9 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-ci-w6d-io-v1alpha1-event
+      path: /validate-ci-w6d-io-v1alpha1-fact
   failurePolicy: Fail
-  name: vevent.kb.io
+  name: vfact.kb.io
   rules:
   - apiGroups:
     - ci.w6d.io
@@ -50,5 +50,5 @@ webhooks:
     - CREATE
     - UPDATE
     resources:
-    - events
+    - facts
   sideEffects: None

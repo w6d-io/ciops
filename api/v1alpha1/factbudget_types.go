@@ -31,14 +31,14 @@ type PipelineSpec struct {
 	Concurrent *int64 `json:"concurrent,omitempty"`
 }
 
-// EventBudgetSpec defines the desired state of EventBudget
-type EventBudgetSpec struct {
+// FactBudgetSpec defines the desired state of FactBudget
+type FactBudgetSpec struct {
 	// Pipeline budget for pipeline
 	Pipeline PipelineSpec `json:"pipeline"`
 }
 
-// EventBudgetStatus defines the observed state of EventBudget
-type EventBudgetStatus struct {
+// FactBudgetStatus defines the observed state of FactBudget
+type FactBudgetStatus struct {
 }
 
 //+kubebuilder:object:root=true
@@ -46,24 +46,24 @@ type EventBudgetStatus struct {
 //+kubebuilder:printcolumn:name="Concurrency",type="string",priority=1,JSONPath=".spec.pipeline.concurrent"
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC."
 
-// EventBudget is the Schema for the eventbudgets API
-type EventBudget struct {
+// FactBudget is the Schema for the factbudgets API
+type FactBudget struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   EventBudgetSpec   `json:"spec,omitempty"`
-	Status EventBudgetStatus `json:"status,omitempty"`
+	Spec   FactBudgetSpec   `json:"spec,omitempty"`
+	Status FactBudgetStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// EventBudgetList contains a list of EventBudget
-type EventBudgetList struct {
+// FactBudgetList contains a list of FactBudget
+type FactBudgetList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []EventBudget `json:"items"`
+	Items           []FactBudget `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&EventBudget{}, &EventBudgetList{})
+	SchemeBuilder.Register(&FactBudget{}, &FactBudgetList{})
 }

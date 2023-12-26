@@ -1,13 +1,13 @@
-# permissions for end users to edit eventbudgets.
+# permissions for end users to edit factbudgets.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: eventbudget-editor-role
+  name: factbudget-editor-role
 rules:
 - apiGroups:
   - ci.w6d.io
   resources:
-  - eventbudgets
+  - factbudgets
   verbs:
   - create
   - delete
@@ -19,6 +19,6 @@ rules:
 - apiGroups:
   - ci.w6d.io
   resources:
-  - eventbudgets/status
+  - factbudgets/status
   verbs:
   - get

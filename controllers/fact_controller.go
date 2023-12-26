@@ -20,56 +20,57 @@ import (
 	"context"
 	"strings"
 
-	"k8s.io/apimachinery/pkg/api/meta"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/util/retry"
-
-	"github.com/w6d-io/ciops/internal/pipelineruns"
-
 	"github.com/google/uuid"
 	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	"github.com/w6d-io/ciops/api/v1alpha1"
+	"github.com/w6d-io/ciops/internal/pipelineruns"
 	"github.com/w6d-io/x/logx"
 )
 
-// EventReconciler reconciles a Event object
-type EventReconciler struct {
+// FactReconciler reconciles a Fact object
+type FactReconciler struct {
 	client.Client
-	EventScheme *runtime.Scheme
+	FactScheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=ci.w6d.io,resources=events,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=ci.w6d.io,resources=events/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=ci.w6d.io,resources=events/finalizers,verbs=update
+//+kubebuilder:rbac:groups=ci.w6d.io,resources=facts,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=ci.w6d.io,resources=facts/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=ci.w6d.io,resources=facts/finalizers,verbs=update
+//+kubebuilder:rbac:groups=ci.w6d.io,resources=factbudgets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=ci.w6d.io,resources=factbudgets/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=ci.w6d.io,resources=factbudgets/finalizers,verbs=update
 //+kubebuilder:rbac:groups=tekton.dev,resources=pipelineruns,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=tekton.dev,resources=pipelineruns/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=tekton.dev,resources=pipelineruns/finalizers,verbs=update
 
-func (r *EventReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *FactReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	correlationID := uuid.New().String()
 	ctx = context.WithValue(ctx, logx.CorrelationID, correlationID)
-	log := logx.WithName(ctx, "Reconcile").WithValues("event", req.NamespacedName.String())
+	log := logx.WithName(ctx, "Reconcile").WithValues("fact", req.NamespacedName.String())
 	var err error
 
-	e := new(v1alpha1.Event)
+	e := new(v1alpha1.Fact)
 	if err = r.Get(ctx, req.NamespacedName, e); err != nil {
 		if errors.IsNotFound(err) {
-			log.Info("Event resource not found, Ignore since object must be deleted")
+			log.Info("Fact resource not found, Ignore since object must be deleted")
 			return ctrl.Result{}, nil
 		}
-		log.Error(err, "failed to get Event")
+		log.Error(err, "failed to get Fact")
 		return ctrl.Result{}, err
 	}
-	status := v1alpha1.EventStatus{PipelineRunName: pipelineruns.GetPipelinerunName(*e.Spec.EventID)}
+	status := v1alpha1.FactStatus{PipelineRunName: pipelineruns.GetPipelinerunName(*e.Spec.EventID)}
 	var childPr tkn.PipelineRun
-	err = r.Get(ctx, types.NamespacedName{Namespace: req.Namespace}, &childPr)
+	err = r.Get(ctx, types.NamespacedName{Namespace: req.Namespace, Name: status.PipelineRunName}, &childPr)
 	if client.IgnoreNotFound(err) != nil {
 		log.Error(err, "Unable to get PipelineRun")
 		return ctrl.Result{}, err
@@ -110,7 +111,7 @@ func (r *EventReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	return ctrl.Result{Requeue: false}, nil
 }
 
-func (r *EventReconciler) GetStatus(state v1alpha1.State) metav1.ConditionStatus {
+func (r *FactReconciler) GetStatus(state v1alpha1.State) metav1.ConditionStatus {
 	switch state {
 	case v1alpha1.Errored, v1alpha1.Cancelled, v1alpha1.Failed:
 		return metav1.ConditionFalse
@@ -121,11 +122,11 @@ func (r *EventReconciler) GetStatus(state v1alpha1.State) metav1.ConditionStatus
 	}
 }
 
-func (r *EventReconciler) UpdateStatus(ctx context.Context, nn types.NamespacedName, status v1alpha1.EventStatus) error {
-	log := logx.WithName(ctx, "EventReconciler.UpdateStatus")
+func (r *FactReconciler) UpdateStatus(ctx context.Context, nn types.NamespacedName, status v1alpha1.FactStatus) error {
+	log := logx.WithName(ctx, "FactReconciler.UpdateStatus").WithValues("resource", nn, "status", status)
 	log.V(1).Info("update status")
 	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		e := &v1alpha1.Event{}
+		e := &v1alpha1.Fact{}
 		err := r.Get(ctx, nn, e)
 		if err != nil {
 			return err
@@ -155,9 +156,9 @@ func IgnoreNotExists(err error) error {
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *EventReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *FactReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.Event{}).
+		For(&v1alpha1.Fact{}).
 		Owns(&tkn.PipelineRun{}).
 		WithOptions(controller.Options{
 			MaxConcurrentReconciles: 10,
@@ -165,6 +166,6 @@ func (r *EventReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (r *EventReconciler) Scheme() *runtime.Scheme {
-	return r.EventScheme
+func (r *FactReconciler) Scheme() *runtime.Scheme {
+	return r.FactScheme
 }

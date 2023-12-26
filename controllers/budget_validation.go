@@ -27,10 +27,10 @@ import (
 	"github.com/w6d-io/x/logx"
 )
 
-func (r *EventReconciler) checkConcurrency(ctx context.Context, nn types.NamespacedName, pipelineName string) error {
+func (r *FactReconciler) checkConcurrency(ctx context.Context, nn types.NamespacedName, pipelineName string) error {
 	log := logx.WithName(ctx, "checkConcurrency")
 	log.V(1).Info("getting all pipeline run")
-	status := v1alpha1.EventStatus{PipelineRunName: pipelineName}
+	status := v1alpha1.FactStatus{PipelineRunName: pipelineName}
 	prs := new(tkn.PipelineRunList)
 	if err := r.List(ctx, prs, client.InNamespace(nn.Namespace)); IgnoreNotExists(err) != nil {
 		log.Error(err, "get list pipelinerun failed")
@@ -51,16 +51,16 @@ func (r *EventReconciler) checkConcurrency(ctx context.Context, nn types.Namespa
 	}
 	log.V(1).Info("pipelinerun running", "count", len(runningPipeline))
 
-	log.V(1).Info("get event budget")
+	log.V(1).Info("get fact budget")
 
-	ebs := new(v1alpha1.EventBudgetList)
+	ebs := new(v1alpha1.FactBudgetList)
 	if err := r.List(ctx, ebs, client.InNamespace(nn.Namespace)); IgnoreNotExists(err) != nil {
-		log.Error(err, "get event budget failed")
+		log.Error(err, "get fact budget failed")
 		return err
 	}
 
 	if len(ebs.Items) == 0 {
-		log.Info("no event budget")
+		log.Info("no fact budget")
 	}
 	var min int64
 	for _, eb := range ebs.Items {

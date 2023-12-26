@@ -3,12 +3,12 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   creationTimestamp: null
-  name: ciops-role
+  name: manager-role
 rules:
 - apiGroups:
   - ci.w6d.io
   resources:
-  - events
+  - factbudgets
   verbs:
   - create
   - delete
@@ -20,13 +20,39 @@ rules:
 - apiGroups:
   - ci.w6d.io
   resources:
-  - events/finalizers
+  - factbudgets/finalizers
   verbs:
   - update
 - apiGroups:
   - ci.w6d.io
   resources:
-  - events/status
+  - factbudgets/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - ci.w6d.io
+  resources:
+  - facts
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ci.w6d.io
+  resources:
+  - facts/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ci.w6d.io
+  resources:
+  - facts/status
   verbs:
   - get
   - patch

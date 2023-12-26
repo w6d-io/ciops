@@ -1,13 +1,13 @@
-# permissions for end users to edit events.
+# permissions for end users to edit facts.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: event-editor-role
+  name: fact-editor-role
 rules:
 - apiGroups:
   - ci.w6d.io
   resources:
-  - events
+  - facts
   verbs:
   - create
   - delete
@@ -19,6 +19,6 @@ rules:
 - apiGroups:
   - ci.w6d.io
   resources:
-  - events/status
+  - facts/status
   verbs:
   - get

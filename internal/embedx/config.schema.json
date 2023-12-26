@@ -56,6 +56,19 @@
       "properties": {
         "port": {
           "type": "integer"
+        },
+        "host": {
+          "anyOf": [
+            {
+              "format": "ipv4"
+            },
+            {
+              "format": "hostname"
+            },
+            {
+              "const": ""
+            }
+          ]
         }
       }
     },

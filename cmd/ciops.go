@@ -17,7 +17,9 @@ package ciops
 
 import (
 	"context"
+	"github.com/go-logr/logr"
 	"os"
+	"runtime/debug"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -28,6 +30,7 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
+	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	//+kubebuilder:scaffold:imports
 
@@ -37,6 +40,7 @@ import (
 	"github.com/w6d-io/x/cmdx"
 	"github.com/w6d-io/x/logx"
 	"github.com/w6d-io/x/pflagx"
+	"github.com/w6d-io/x/toolx"
 )
 
 var (
@@ -52,7 +56,7 @@ var (
 	wh = &cobra.Command{
 		Use:   "webhook",
 		Short: "Run the CI/CD webhook",
-		RunE:  webhook,
+		RunE:  webhookCmd,
 	}
 	OsExit = os.Exit
 )
@@ -71,7 +75,21 @@ func init() {
 
 func Execute() {
 	log := logx.WithName(context.TODO(), "Main")
-	rootCmd.AddCommand(cmdx.Version(&config.Version, &config.Revision, &config.Built))
+	var (
+		commit    string
+		buildTime string
+	)
+	bi, _ := debug.ReadBuildInfo()
+	for _, s := range bi.Settings {
+		switch s.Key {
+		case "vcs.time":
+			buildTime = s.Value
+			break
+		case "vcs.revision":
+			commit = s.Value
+		}
+	}
+	rootCmd.AddCommand(cmdx.Version(&config.Version, &commit, &buildTime))
 	rootCmd.AddCommand(s)
 	rootCmd.AddCommand(wh)
 	if err := rootCmd.Execute(); err != nil {
@@ -85,9 +103,7 @@ func serve(_ *cobra.Command, _ []string) error {
 	if viper.ConfigFileUsed() == "" {
 		log.Info("no configuration file set")
 	}
-	log.Info("start service", "Version", config.Version, "Built",
-		config.Built, "Revision", config.Revision)
-
+	showVersion(log)
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                        scheme,
 		MetricsBindAddress:            viper.GetString(config.ViperKeyMetricsListen),
@@ -96,7 +112,6 @@ func serve(_ *cobra.Command, _ []string) error {
 		LeaderElectionID:              viper.GetString(config.ViperKeyLeaderName),
 		LeaderElectionNamespace:       viper.GetString(config.ViperKeyLeaderNamespace),
 		LeaderElectionReleaseOnCancel: true,
-		Namespace:                     viper.GetString(config.ViperKeyNamespace),
 	})
 	if err != nil {
 		log.Error(err, "unable to start manager")
@@ -129,20 +144,22 @@ func serve(_ *cobra.Command, _ []string) error {
 	return nil
 }
 
-func webhook(_ *cobra.Command, _ []string) error {
+func webhookCmd(_ *cobra.Command, _ []string) error {
 	log := logx.WithName(context.TODO(), "setup")
 	if viper.ConfigFileUsed() == "" {
 		log.Info("no configuration file set")
 	}
-	log.Info("start webhook", "Version", config.Version, "Built",
-		config.Built, "Revision", config.Revision)
+	showVersion(log)
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     viper.GetString(config.ViperKeyMetricsListen),
 		HealthProbeBindAddress: viper.GetString(config.ViperKeyProbeListen),
 		LeaderElection:         false,
-		Port:                   viper.GetInt(config.ViperKeyWebhookListen),
+		WebhookServer: webhook.NewServer(webhook.Options{
+			Host: viper.GetString(config.ViperKeyWebhookHost),
+			Port: viper.GetInt(config.ViperKeyWebhookPort),
+		}),
 	})
 	if err != nil {
 		log.Error(err, "unable to start manager")
@@ -170,4 +187,16 @@ func webhook(_ *cobra.Command, _ []string) error {
 		return err
 	}
 	return nil
+}
+
+func showVersion(log logr.Logger) {
+	var info []interface{}
+	info = append(info, "version", config.Version)
+	bi, _ := debug.ReadBuildInfo()
+	for _, s := range bi.Settings {
+		if toolx.InArray(s.Key, []string{"vcs.time", "vcs.revision"}) {
+			info = append(info, s.Key[4:], s.Value)
+		}
+	}
+	log.Info("start service", info...)
 }

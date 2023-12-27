@@ -6,6 +6,7 @@ toolchain go1.21.5
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0
+	github.com/go-logr/logr v1.3.0
 	github.com/google/uuid v1.5.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.30.0
@@ -52,7 +53,6 @@ require (
 	github.com/go-kit/kit v0.13.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
-	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/go-logr/zapr v1.2.4 // indirect
 	github.com/go-openapi/jsonpointer v0.20.0 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
@@ -63,12 +63,9 @@ require (
 	github.com/google/cel-go v0.18.1 // indirect
 	github.com/google/gnostic v0.6.9 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/google/go-containerregistry v0.16.1 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/pprof v0.0.0-20221010195024-131d412537ea // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.1 // indirect
-	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
@@ -84,7 +81,6 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/nyaruka/phonenumbers v1.1.7 // indirect
-	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/ory/go-acc v0.2.9-0.20230103102148-6b1c9a70dbbe // indirect
 	github.com/ory/jsonschema/v3 v3.0.8 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect

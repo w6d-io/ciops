@@ -119,8 +119,8 @@ func serve(_ *cobra.Command, _ []string) error {
 	}
 
 	if err = (&controllers.FactReconciler{
-		Client:     mgr.GetClient(),
-		FactScheme: scheme,
+		Client:      mgr.GetClient(),
+		LocalScheme: scheme,
 	}).SetupWithManager(mgr); err != nil {
 		log.Error(err, "unable to create controller", "controller", "Fact")
 		return err

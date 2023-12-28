@@ -72,11 +72,11 @@
         }
       }
     },
-    "leaderElection": {
+    "election": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "leaderElect": {
+        "enabled": {
           "type": "boolean",
           "default": false
         },

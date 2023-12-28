@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
@@ -84,7 +85,8 @@ func Init() {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+		var configFileNotFoundError viper.ConfigFileNotFoundError
+		if !errors.As(err, &configFileNotFoundError) {
 			logx.WithName(context.TODO(), "Config").Error(err, "failed to read config")
 			OsExit(1)
 			return

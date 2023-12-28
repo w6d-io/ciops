@@ -20,13 +20,14 @@ import (
 	"fmt"
 
 	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
-	v1 "knative.dev/pkg/apis/duck/v1"
-
-	"github.com/w6d-io/ciops/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 	"k8s.io/client-go/kubernetes/scheme"
+	v1 "knative.dev/pkg/apis/duck/v1"
+
+	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
+	"github.com/w6d-io/ciops/api/v1alpha1"
 )
 
 func GetPipelinerunName(id int64) string {
@@ -45,7 +46,7 @@ func getObjectContain(obj runtime.Object) string {
 // Condition returns a kubernetes State
 func Condition(c v1.Conditions) (status v1alpha1.State) {
 	if len(c) == 0 {
-		return "---"
+		return v1alpha1.State(pipelinev1alpha1.Pending.ToString())
 	}
 
 	switch c[0].Status {

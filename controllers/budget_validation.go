@@ -62,7 +62,7 @@ func (r *FactReconciler) checkConcurrency(ctx context.Context, nn types.Namespac
 	if len(ebs.Items) == 0 {
 		log.Info("no fact budget")
 	}
-	var min int64
+	var minItems int64
 	for _, eb := range ebs.Items {
 		if eb.Spec.Pipeline.PipelineRef != nil {
 			if pipelineName != *eb.Spec.Pipeline.PipelineRef {
@@ -70,16 +70,16 @@ func (r *FactReconciler) checkConcurrency(ctx context.Context, nn types.Namespac
 			}
 		}
 		if eb.Spec.Pipeline.Concurrent != nil {
-			min = minInt64(min, *eb.Spec.Pipeline.Concurrent)
+			minItems = minInt64(minItems, *eb.Spec.Pipeline.Concurrent)
 		}
 	}
-	if min == 0 {
+	if minItems == 0 {
 		log.V(2).Info("no pipeline concurrency")
 		return nil
 	}
-	if min <= int64(len(runningPipeline)) {
+	if minItems <= int64(len(runningPipeline)) {
 		log.V(1).Info("hit concurrence pipeline", "action", "queued",
-			"minimum", min, "count", len(runningPipeline))
+			"minimum", minItems, "count", len(runningPipeline))
 		log.V(1).Info("update status", "status", v1alpha1.Queued,
 			"step", "4")
 		status.State = v1alpha1.Queued

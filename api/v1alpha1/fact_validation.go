@@ -16,137 +16,68 @@ Created on 23/10/2022
 package v1alpha1
 
 import (
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/util/validation/field"
+	corev1 "k8s.io/api/core/v1"
+	"knative.dev/pkg/apis"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
-
-	pipeline "github.com/w6d-io/apis/pipeline/v1alpha1"
 )
 
-func ValidateFact(name string, fact FactSpec) (admission.Warnings, error) {
-	var allErrs field.ErrorList
-
-	allErrs = append(allErrs, ValidateFactSpec(fact)...)
-	allErrs = append(allErrs, ValidateTrigger(fact.Trigger)...)
-	allErrs = append(allErrs, ValidatePipeline(fact.Pipeline)...)
-	if len(allErrs) == 0 {
-		return nil, nil
-	}
-	return nil, apierrors.NewInvalid(schema.GroupKind{
-		Group: GroupVersion.String(),
-		Kind:  "Fact",
-	}, name, allErrs)
+func ValidateFact(_ string, fact FactSpec) (admission.Warnings, *apis.FieldError) {
+	var errs *apis.FieldError
+	errs = ValidateFactSpec(fact)
+	errs = errs.Also(ValidateTrigger(fact.Trigger))
+	errs = errs.Also(ValidatePipeline(fact.PipelineSource))
+	return nil, errs
 }
 
-func ValidateFactSpec(fact FactSpec) (allErrs field.ErrorList) {
+func ValidateFactSpec(fact FactSpec) (errs *apis.FieldError) {
 	if fact.EventID == nil {
-		allErrs = append(
-			allErrs,
-			field.Required(
-				field.NewPath("spec").Child("eventId"), ""),
-		)
-	}
-	if fact.ProjectID == 0 {
-		allErrs = append(
-			allErrs,
-			field.Required(
-				field.NewPath("spec").Child("projectId"), ""),
-		)
+		errs = errs.Also(apis.ErrMissingField("spec", "eventId"))
 	}
 	if len(fact.PipelineRef) == 0 {
-		allErrs = append(
-			allErrs,
-			field.Required(
-				field.NewPath("spec").Child("pipelineRef"), ""),
-		)
+		errs = errs.Also(apis.ErrMissingField("spec", "pipelineRef"))
 	}
 	if len(fact.ProjectName) == 0 {
-		allErrs = append(
-			allErrs,
-			field.Required(
-				field.NewPath("spec").Child("projectName"), ""),
-		)
+		errs = errs.Also(apis.ErrMissingField("spec", "projectName"))
 	}
 	if len(fact.ProjectURL) == 0 {
-		allErrs = append(
-			allErrs,
-			field.Required(
-				field.NewPath("spec").Child("projectUrl"), ""),
-		)
+		errs = errs.Also(apis.ErrMissingField("spec", "projectUrl"))
 	}
 	if len(fact.Ref) == 0 {
-		allErrs = append(
-			allErrs,
-			field.Required(
-				field.NewPath("spec").Child("ref"), ""),
-		)
+		errs = errs.Also(apis.ErrMissingField("spec", "ref"))
 	}
 	if len(fact.Commit) == 0 {
-		allErrs = append(
-			allErrs,
-			field.Required(
-				field.NewPath("spec").Child("commit"), ""),
-		)
+		errs = errs.Also(apis.ErrMissingField("spec", "commit"))
 	}
 	if len(fact.BeforeSha) == 0 {
-		allErrs = append(
-			allErrs,
-			field.Required(
-				field.NewPath("spec").Child("beforeSha"), ""),
-		)
+		errs = errs.Also(apis.ErrMissingField("spec", "beforeSha"))
 	}
 	if len(fact.CommitMessage) == 0 {
-		allErrs = append(
-			allErrs,
-			field.Required(
-				field.NewPath("spec").Child("commitMessage"), ""),
-		)
+		errs = errs.Also(apis.ErrMissingField("spec", "commitMessage"))
 	}
 
 	if len(fact.UserId) == 0 {
-		allErrs = append(
-			allErrs,
-			field.Required(
-				field.NewPath("spec").Child("userId"), ""),
-		)
+		errs = errs.Also(apis.ErrMissingField("spec", "userId"))
 	}
 	return
 }
 
-func ValidateTrigger(trigger *TriggerSpec) (allErrs field.ErrorList) {
+func ValidateTrigger(trigger *TriggerSpec) (errs *apis.FieldError) {
 	if trigger == nil {
-		allErrs = append(
-			allErrs,
-			field.Required(
-				field.NewPath("spec").Child("trigger"), ""),
-		)
+		errs = errs.Also(apis.ErrMissingField("spec", "trigger"))
 		return
 	}
 	if len(trigger.ID) == 0 {
-		allErrs = append(
-			allErrs,
-			field.Required(
-				field.NewPath("spec").Child("trigger").Child("id"), ""),
-		)
+		errs = errs.Also(apis.ErrMissingField("spec", "trigger", "id"))
 	}
 	if len(trigger.Ref) == 0 {
-		allErrs = append(
-			allErrs,
-			field.Required(
-				field.NewPath("spec").Child("trigger").Child("ref"), ""),
-		)
+		errs = errs.Also(apis.ErrMissingField("spec", "trigger", "ref"))
 	}
 	return
 }
 
-func ValidatePipeline(p *pipeline.Pipeline) (allErrs field.ErrorList) {
-	if p == nil {
-		allErrs = append(
-			allErrs,
-			field.Required(
-				field.NewPath("spec").Child("pipeline"), ""),
-		)
+func ValidatePipeline(p *corev1.LocalObjectReference) (errs *apis.FieldError) {
+	if p == nil || len(p.Name) == 0 {
+		errs = errs.Also(apis.ErrMissingField("spec", "pipeline"))
 	}
 	return
 }

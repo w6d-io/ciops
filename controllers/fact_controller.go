@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
 	"strings"
 
 	"github.com/google/uuid"
@@ -40,7 +41,7 @@ import (
 // FactReconciler reconciles a Fact object
 type FactReconciler struct {
 	client.Client
-	FactScheme *runtime.Scheme
+	LocalScheme *runtime.Scheme
 }
 
 //+kubebuilder:rbac:groups=ci.w6d.io,resources=facts,verbs=get;list;watch;create;update;patch;delete
@@ -102,8 +103,8 @@ func (r *FactReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		}
 		return ctrl.Result{Requeue: true}, err
 	}
-	log.V(1).Info("update status", "status", v1alpha1.Pending, "step", "6")
-	status.State = v1alpha1.Pending
+	log.V(1).Info("update status", "status", pipelinev1alpha1.Pending.ToString(), "step", "6")
+	status.State = v1alpha1.State(pipelinev1alpha1.Pending.ToString())
 	if err = r.UpdateStatus(ctx, req.NamespacedName, status); err != nil {
 		log.Error(err, "update status failed")
 		return ctrl.Result{Requeue: true}, err
@@ -127,8 +128,7 @@ func (r *FactReconciler) UpdateStatus(ctx context.Context, nn types.NamespacedNa
 	log.V(1).Info("update status")
 	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		e := &v1alpha1.Fact{}
-		err := r.Get(ctx, nn, e)
-		if err != nil {
+		if err := r.Get(ctx, nn, e); err != nil {
 			return err
 		}
 		e.Status.State = status.State
@@ -140,7 +140,9 @@ func (r *FactReconciler) UpdateStatus(ctx context.Context, nn types.NamespacedNa
 			Reason:  string(status.State),
 			Message: status.Message,
 		})
-		err = r.Status().Update(ctx, e)
+		if err := r.Status().Update(ctx, e); err != nil {
+			log.Error(err, "update status failed")
+		}
 		return nil
 	})
 	return err
@@ -167,5 +169,5 @@ func (r *FactReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 func (r *FactReconciler) Scheme() *runtime.Scheme {
-	return r.FactScheme
+	return r.LocalScheme
 }

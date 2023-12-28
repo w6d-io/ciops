@@ -58,6 +58,32 @@ rules:
   - patch
   - update
 - apiGroups:
+  - ci.w6d.io
+  resources:
+  - pipelinesources
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ci.w6d.io
+  resources:
+  - pipelinesources/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ci.w6d.io
+  resources:
+  - pipelinesources/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - tekton.dev
   resources:
   - pipelineruns
@@ -79,6 +105,58 @@ rules:
   - tekton.dev
   resources:
   - pipelineruns/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - tekton.dev
+  resources:
+  - pipelines
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - tekton.dev
+  resources:
+  - pipelines/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - tekton.dev
+  resources:
+  - pipelines/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - tekton.dev
+  resources:
+  - tasks
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - tekton.dev
+  resources:
+  - tasks/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - tekton.dev
+  resources:
+  - tasks/status
   verbs:
   - get
   - patch

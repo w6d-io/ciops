@@ -18,6 +18,7 @@ package pipelineruns
 import (
 	"context"
 	"fmt"
+	"k8s.io/apimachinery/pkg/types"
 	"time"
 
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/pod"
@@ -26,12 +27,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	notification "github.com/w6d-io/apis/notification/v1alpha1"
 	"github.com/w6d-io/ciops/api/v1alpha1"
+	"github.com/w6d-io/hook"
 	"github.com/w6d-io/x/logx"
 )
 
 type LocalConfig struct {
-	Template          *pod.PodTemplate              `json:"podTemplate" mapstructure:"podTemplate"`
+	Template          *pod.Template                 `json:"podTemplate" mapstructure:"podTemplate"`
 	WB                []pipelinev1.WorkspaceBinding `json:"workspaces"  mapstructure:"workspaces"`
 	PipelinerunPrefix string                        `json:"prefix"      mapstructure:"prefix"`
 }
@@ -41,7 +44,15 @@ var (
 )
 
 func Build(ctx context.Context, r client.Client, e *v1alpha1.Fact) error {
+	namespace := e.Namespace
 	eSpec := e.Spec
+	ps := new(v1alpha1.PipelineSource)
+	if err := r.Get(ctx, types.NamespacedName{
+		Name:      e.Spec.PipelineSource.Name,
+		Namespace: namespace,
+	}, ps); err != nil {
+
+	}
 	log := logx.WithName(ctx, "pipelinerun.Build").WithValues("pipelinerun", GetPipelinerunName(*eSpec.EventID), "namespace", e.Namespace)
 	log.V(1).Info("build pipelinerun")
 	params := []pipelinev1.Param{
@@ -57,13 +68,6 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Fact) error {
 			Value: pipelinev1.ParamValue{
 				Type:      pipelinev1.ParamTypeString,
 				StringVal: eSpec.Commit,
-			},
-		},
-		{
-			Name: "projectId",
-			Value: pipelinev1.ParamValue{
-				Type:      pipelinev1.ParamTypeString,
-				StringVal: eSpec.ProjectID.String(),
 			},
 		},
 		{
@@ -179,6 +183,25 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Fact) error {
 		log.Error(err, "create or update failed", "operation", op)
 		return err
 	}
+	payload := &notification.Notification{
+		Id:      ps.Spec.ProjectID.String(),
+		Type:    "notification",
+		Kind:    "project",
+		Scope:   []string{"*"},
+		Message: fmt.Sprintf("pipeline run created, eventId = %v", e.Spec.EventID),
+		Time:    time.Now().UnixMilli(),
+	}
+	var action string
+	if op == controllerutil.OperationResultCreated {
+		action = "created"
+
+	} else {
+		action = "updated"
+	}
+	payload.Message = fmt.Sprintf("pipeline run %s, eventId = %v", action, e.Spec.EventID)
+	_ = hook.Send(ctx, payload, fmt.Sprintf("notification.pipelinerun.%s", action))
+	_ = hook.Send(ctx, &ps, fmt.Sprintf("ci-status.pipelinerun.%s", action))
+
 	log.Info("resource successfully reconciled", "operation", op)
 	return nil
 }

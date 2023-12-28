@@ -16,23 +16,35 @@ Created on 21/09/2022
 package config_test
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2"
 	"github.com/spf13/viper"
 
 	"github.com/w6d-io/ciops/internal/config"
 )
 
 var _ = Describe("Config", func() {
-	Context("", func() {
+	Context("when configuration is incorrect", func() {
 		BeforeEach(func() {
 			config.SkipValidation = true
 			viper.Reset()
 		})
-		AfterEach(func() {
+		It("File does not exist", func() {
+			config.CfgFile = "testdata/no-file.yaml"
+			config.Init()
 		})
-		It("", func() {
-			Expect("").To(Equal(""))
+		It("File does not exist", func() {
+			config.CfgFile = "testdata/bad-content.yaml"
+			config.Init()
+		})
+	})
+	Context("when configuration is correct", func() {
+		BeforeEach(func() {
+			config.SkipValidation = true
+			viper.Reset()
+		})
+		It("File does not exist", func() {
+			config.CfgFile = "testdata/file1.yaml"
+			config.Init()
 		})
 	})
 })

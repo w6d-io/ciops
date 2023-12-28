@@ -22,9 +22,9 @@ const (
 	ViperKeyProbeListen       = "listen.probe"
 	ViperKeyWebhookPort       = "webhook.port"
 	ViperKeyWebhookHost       = "webhook.host"
-	ViperKeyLeaderElect       = "leaderElection.leaderElect"
-	ViperKeyLeaderName        = "leaderElection.resourceName"
-	ViperKeyLeaderNamespace   = "leaderElection.namespace"
+	ViperKeyLeaderElect       = "election.enabled"
+	ViperKeyLeaderName        = "election.resourceName"
+	ViperKeyLeaderNamespace   = "election.namespace"
 	ViperKeyHooks             = "hooks"
 	ViperKeyPipelinerun       = "pipelinerun"
 	ViperKeyPipelinerunPrefix = "pipelinerun.prefix"
@@ -39,11 +39,11 @@ type Config struct {
 		Host string `json:"host,omitempty" mapstructure:"host"`
 		Port int    `json:"port,omitempty" mapstructure:"port"`
 	} `json:"webhook,omitempty" mapstructure:"webhook"`
-	LeaderElection struct {
-		LeaderElect  bool   `json:"leaderElect,omitempty" mapstructure:"leaderElect"`
+	Election struct {
+		Enabled      bool   `json:"enabled,omitempty" mapstructure:"enabled"`
 		ResourceName string `json:"resourceName,omitempty" mapstructure:"resourceName"`
 		Namespace    string `json:"namespace,omitempty" mapstructure:"namespace"`
-	} `json:"leaderElection,omitempty" mapstructure:"leaderElection"`
+	} `json:"election,omitempty" mapstructure:"election"`
 	Pipelinerun struct {
 		Prefix                       string                `json:"prefix,omitempty" mapstructure:"prefix"`
 		Workspaces                   []v1.WorkspaceBinding `json:"workspaces,omitempty" mapstructure:"workspaces"`

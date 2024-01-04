@@ -60,8 +60,8 @@ func (r *FactReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	log := logx.WithName(ctx, "Reconcile").WithValues("fact", req.NamespacedName.String())
 	var err error
 
-	e := new(v1alpha1.Fact)
-	if err = r.Get(ctx, req.NamespacedName, e); err != nil {
+	obj := new(v1alpha1.Fact)
+	if err = r.Get(ctx, req.NamespacedName, obj); err != nil {
 		if errors.IsNotFound(err) {
 			log.Info("Fact resource not found, Ignore since object must be deleted")
 			return ctrl.Result{}, nil
@@ -69,7 +69,7 @@ func (r *FactReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		log.Error(err, "failed to get Fact")
 		return ctrl.Result{}, err
 	}
-	status := v1alpha1.FactStatus{PipelineRunName: pipelineruns.GetPipelinerunName(*e.Spec.EventID)}
+	status := v1alpha1.FactStatus{PipelineRunName: pipelineruns.GetPipelinerunName(*obj.Spec.EventID)}
 	var childPr tkn.PipelineRun
 	err = r.Get(ctx, types.NamespacedName{Namespace: req.Namespace, Name: status.PipelineRunName}, &childPr)
 	if client.IgnoreNotFound(err) != nil {
@@ -88,11 +88,11 @@ func (r *FactReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	log.V(1).Info("pipelinerun not found")
 	log.V(1).Info("getting all pipeline run")
 
-	if err = r.checkConcurrency(ctx, req.NamespacedName, pipelineruns.GetPipelinerunName(*e.Spec.EventID)); err != nil {
+	if err = r.checkConcurrency(ctx, req.NamespacedName, pipelineruns.GetPipelinerunName(*obj.Spec.EventID)); err != nil {
 		return ctrl.Result{Requeue: true}, err
 	}
 
-	if err = pipelineruns.Build(ctx, r, e); err != nil {
+	if err = pipelineruns.Build(ctx, r, obj); err != nil {
 		log.Error(err, "failed to create pipelinerun")
 		log.V(1).Info("update status", "status", v1alpha1.Errored,
 			"step", "5")

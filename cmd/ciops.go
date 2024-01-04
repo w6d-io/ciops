@@ -125,6 +125,13 @@ func serve(_ *cobra.Command, _ []string) error {
 		log.Error(err, "unable to create controller", "controller", "Fact")
 		return err
 	}
+	if err = (&controllers.PipelineSourceReconciler{
+		Client:      mgr.GetClient(),
+		LocalScheme: scheme,
+	}).SetupWithManager(mgr); err != nil {
+		log.Error(err, "unable to create controller", "controller", "PipelineSource")
+		return err
+	}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {

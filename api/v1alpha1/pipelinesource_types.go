@@ -17,7 +17,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	pipelinev1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -76,18 +75,7 @@ type PipelineSourceList struct {
 	Items           []PipelineSource `json:"items"`
 }
 
-// Step marshalling structure
-type Step struct {
-	pipelinev1.Step `json:",inline"`
-	DisplayName     string                            `json:"displayName,omitempty"`
-	ID              string                            `json:"id,omitempty"`
-	Category        string                            `json:"category,omitempty"`
-	Description     string                            `json:"description,omitempty"`
-	Icon            string                            `json:"icon,omitempty"`
-	Fields          []string                          `json:"fields,omitempty"`
-	Params          []pipelinev1.ParamSpec            `json:"params,omitempty"`
-	Workspaces      []pipelinev1.WorkspaceDeclaration `json:"workspaces,omitempty"`
-}
+// Option defines a field list option supported
 type Option string
 
 type Validation struct {

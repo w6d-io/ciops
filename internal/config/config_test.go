@@ -30,11 +30,11 @@ var _ = Describe("Config", func() {
 		})
 		It("File does not exist", func() {
 			config.CfgFile = "testdata/no-file.yaml"
-			config.Init()
+			config.Base()
 		})
 		It("File does not exist", func() {
 			config.CfgFile = "testdata/bad-content.yaml"
-			config.Init()
+			config.Base()
 		})
 	})
 	Context("when configuration is correct", func() {
@@ -44,7 +44,7 @@ var _ = Describe("Config", func() {
 		})
 		It("File does not exist", func() {
 			config.CfgFile = "testdata/file1.yaml"
-			config.Init()
+			config.Base()
 		})
 	})
 })

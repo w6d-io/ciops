@@ -44,7 +44,7 @@ var _ apis.Defaultable = &Fact{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (in *Fact) Default() {
-	factlog.Info("default", "name", in.Name)
+	factlog.Info("default", "name", in.Name, "namespace", in.Namespace)
 
 	// TODO(user): fill in your defaulting logic.
 	// nothing to do
@@ -68,14 +68,14 @@ func (in *Fact) Validate(_ context.Context) *apis.FieldError {
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (in *Fact) ValidateCreate() (admission.Warnings, error) {
-	factlog.Info("validate create", "name", in.Name)
+	factlog.Info("validate create", "name", in.Name, "namespace", in.Namespace)
 
 	return ValidateFact(in.Name, in.Spec)
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (in *Fact) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
-	factlog.Info("validate update", "name", in.Name)
+	factlog.Info("validate update", "name", in.Name, "namespace", in.Namespace)
 
 	// TODO(user): fill in your validation logic upon object update.
 	return nil, nil
@@ -83,7 +83,7 @@ func (in *Fact) ValidateUpdate(_ runtime.Object) (admission.Warnings, error) {
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
 func (in *Fact) ValidateDelete() (admission.Warnings, error) {
-	factlog.Info("validate delete", "name", in.Name)
+	factlog.Info("validate delete", "name", in.Name, "namespace", in.Namespace)
 
 	// TODO(user): fill in your validation logic upon object deletion.
 	return nil, nil

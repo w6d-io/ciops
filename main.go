@@ -17,7 +17,7 @@ limitations under the License.
 package main
 
 import (
-	ciops "github.com/w6d-io/ciops/cmd"
+	ciops "github.com/w6d-io/ciops/cmd/ciops"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 

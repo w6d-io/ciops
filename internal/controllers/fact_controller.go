@@ -18,7 +18,6 @@ package controllers
 
 import (
 	"context"
-	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
 	"strings"
 
 	"github.com/google/uuid"
@@ -33,6 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
+	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
 	"github.com/w6d-io/ciops/api/v1alpha1"
 	"github.com/w6d-io/ciops/internal/pipelineruns"
 	"github.com/w6d-io/x/logx"

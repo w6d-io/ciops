@@ -143,7 +143,6 @@ test: manifests generate fmt vet envtest ## Run tests.
 .PHONY: format
 format: goimports
 	$(GOIMPORTS) -w -local github.com/w6d-io,gitlab.w6d.io/w6d api cmd internal
-	$(GOIMPORTS) -w -local github.com/w6d-io,gitlab.w6d.io/w6d api controllers internal
 
 ##@ Build
 

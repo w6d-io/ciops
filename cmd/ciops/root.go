@@ -17,7 +17,6 @@ package ciops
 
 import (
 	"context"
-	"github.com/w6d-io/ciops/cmd/ciops/webhook"
 	"os"
 	"runtime/debug"
 	"strconv"
@@ -25,6 +24,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/w6d-io/ciops/cmd/ciops/server"
+	"github.com/w6d-io/ciops/cmd/ciops/webhook"
 	"github.com/w6d-io/ciops/internal/config"
 	"github.com/w6d-io/x/cmdx"
 	"github.com/w6d-io/x/logx"

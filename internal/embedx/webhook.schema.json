@@ -1,0 +1,70 @@
+{
+  "$id": "https://github.com/w6d-io/ciops/internal/embedx/webhook.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "W6D Github management Configuration",
+  "type": "object",
+  "definitions": {
+    "listen": {
+      "title": "listen port",
+      "type": "string",
+      "oneOf": [
+        {
+          "pattern": "^:([0-9]+)$"
+        },
+        {
+          "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}:([0-9]+)$"
+        },
+        {
+          "format": "uri"
+        }
+      ],
+      "examples": [
+        "127.0.0.1:6831",
+        ":4321"
+      ]
+    }
+  },
+  "properties": {
+    "listen" : {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "probe",
+        "metrics"
+      ],
+      "properties": {
+        "probe": {
+          "$ref": "#/definitions/listen"
+        },
+        "metrics": {
+          "$ref": "#/definitions/listen"
+        }
+      }
+    },
+    "webhook": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "host": {
+          "anyOf": [
+            {
+              "format": "ipv4"
+            },
+            {
+              "format": "hostname"
+            },
+            {
+              "const": ""
+            }
+          ]
+        },
+        "port": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "required": ["listen", "webhook"],
+  "additionalProperties": false
+}
+

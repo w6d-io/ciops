@@ -20,3 +20,6 @@ import (
 
 //go:embed config.schema.json
 var ConfigSchema string
+
+//go:embed webhook.schema.json
+var WebhookSchema string

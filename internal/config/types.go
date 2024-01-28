@@ -15,7 +15,27 @@ Created on 21/09/2022
 
 package config
 
-import v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
+import (
+	"os"
+
+	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
+
+	"github.com/w6d-io/jsonschema"
+)
+
+var (
+	// Version of application
+	Version string
+
+	// CfgFile contain the path of the config file
+	CfgFile string
+
+	// OsExit is hack for unit-test
+	OsExit = os.Exit
+
+	// SkipValidation toggling the config validation
+	SkipValidation bool
+)
 
 const (
 	ViperKeyMetricsListen     = "listen.metrics"
@@ -30,15 +50,16 @@ const (
 	ViperKeyPipelinerunPrefix = "pipelinerun.prefix"
 )
 
+const (
+	Schema jsonschema.SchemaType = iota
+	WebhookSchema
+)
+
 type Config struct {
 	Listen struct {
-		Metrics string `json:"metrics,omitempty" mapstructure:"metrics"`
 		Probe   string `json:"probe,omitempty" mapstructure:"probe"`
+		Metrics string `json:"metrics,omitempty" mapstructure:"metrics"`
 	} `json:"listen,omitempty" mapstructure:"listen"`
-	Webhook struct {
-		Host string `json:"host,omitempty" mapstructure:"host"`
-		Port int    `json:"port,omitempty" mapstructure:"port"`
-	} `json:"webhook,omitempty" mapstructure:"webhook"`
 	Election struct {
 		Enabled      bool   `json:"enabled,omitempty" mapstructure:"enabled"`
 		ResourceName string `json:"resourceName,omitempty" mapstructure:"resourceName"`
@@ -65,4 +86,15 @@ type Config struct {
 		} `json:"podTemplate,omitempty" mapstructure:"podTemplate"`
 	} `json:"pipelinerun,omitempty" mapstructure:"pipelinerun"`
 	Namespace string `json:"namespace,omitempty" mapstructure:"namespace"`
+}
+
+type Webhook struct {
+	Listen struct {
+		Probe   string `mapstructure:"probe"   json:"probe,omitempty"`
+		Metrics string `mapstructure:"metrics" json:"metrics,omitempty"`
+	} `mapstructure:"listen" json:"listen,omitempty"`
+	Webhook struct {
+		Host string `mapstructure:"host" json:"host,omitempty"`
+		Port int    `mapstructure:"port" json:"port,omitempty"`
+	} `mapstructure:"webhook" json:"webhook,omitempty"`
 }

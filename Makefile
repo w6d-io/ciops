@@ -160,8 +160,8 @@ run: manifests generate fmt vet ## Run a controller from your host.
        . server --config=test/config.yaml
 
 .PHONY: docker-build
-docker-build: test ## Build docker image with the ciops.
-	docker build --build-arg=VERSION=${VERSION} --build-arg=VCS_REF=${VCS_REF} --build-arg=BUILD_DATE=${BUILD_DATE} -t ${IMG} .
+docker-build: ## Build docker image with the ciops.
+	docker build --build-arg=VERSION=${VERSION} -t ${IMG} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the ciops.

@@ -18,8 +18,9 @@ package pipelineruns
 import (
 	"context"
 	"fmt"
-	"k8s.io/apimachinery/pkg/types"
 	"time"
+
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/pod"
 	pipelinev1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"

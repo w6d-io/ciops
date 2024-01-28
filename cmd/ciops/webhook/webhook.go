@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	tknv1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -31,7 +32,6 @@ import (
 	"github.com/w6d-io/ciops/internal/config"
 	"github.com/w6d-io/ciops/internal/toolx"
 	"github.com/w6d-io/x/logx"
-	"k8s.io/apimachinery/pkg/runtime"
 )
 
 var (

@@ -17,8 +17,9 @@ limitations under the License.
 package v1alpha1
 
 import (
-	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
 )
 
 // PipelineSourceStatus defines the observed state of PipelineSource

@@ -19,10 +19,10 @@ package controllers_test
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"path/filepath"
 	"testing"
 
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"

@@ -13,7 +13,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 	github.com/tektoncd/pipeline v0.56.0
-	github.com/w6d-io/apis v0.6.3
+	github.com/w6d-io/apis v0.6.4
 	github.com/w6d-io/hook v0.4.0
 	github.com/w6d-io/jsonschema v1.4.0
 	github.com/w6d-io/x v0.18.0

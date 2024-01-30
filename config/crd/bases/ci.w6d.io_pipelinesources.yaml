@@ -74,6 +74,30 @@ spec:
                 type: integer
               eventId:
                 type: string
+              fieldError:
+                properties:
+                  fields:
+                    items:
+                      properties:
+                        id:
+                          description: ID of the resource where the error is
+                          type: string
+                        message:
+                          description: Message holds the main diagnostic message carried
+                            by this Field
+                          type: string
+                        path:
+                          description: Path of the resource
+                          type: string
+                      required:
+                      - id
+                      - message
+                      - path
+                      type: object
+                    type: array
+                required:
+                - fields
+                type: object
               force:
                 type: boolean
               id:
@@ -241,6 +265,7 @@ spec:
             - complete
             - endTime
             - eventId
+            - fieldError
             - force
             - id
             - logUri

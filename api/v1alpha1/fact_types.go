@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type Status int
@@ -45,6 +46,11 @@ const (
 
 	// Errored means that at least one tekton resource couldn't be created
 	Errored State = "Errored"
+)
+
+var (
+	// GroupFactKind is group kind for Fact
+	GroupFactKind = schema.GroupKind{Group: "ci.w6d.io", Kind: "Fact"}
 )
 
 const (

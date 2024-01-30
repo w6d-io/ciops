@@ -16,68 +16,67 @@ Created on 23/10/2022
 package v1alpha1
 
 import (
-	corev1 "k8s.io/api/core/v1"
-	"knative.dev/pkg/apis"
+	"k8s.io/apimachinery/pkg/util/validation/field"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
-func ValidateFact(_ string, fact FactSpec) (admission.Warnings, *apis.FieldError) {
-	var errs *apis.FieldError
-	errs = ValidateFactSpec(fact)
-	errs = errs.Also(ValidateTrigger(fact.Trigger))
-	errs = errs.Also(ValidatePipeline(fact.PipelineSource))
-	return nil, errs
+func ValidateFact(_ string, fact FactSpec) (admission.Warnings, field.ErrorList) {
+	warns := admission.Warnings{}
+	errs := field.ErrorList{}
+	fact.ValidateFactSpec(&warns, &errs)
+	fact.ValidateTrigger(&warns, &errs)
+	fact.ValidatePipeline(&warns, &errs)
+	return warns, errs
 }
 
-func ValidateFactSpec(fact FactSpec) (errs *apis.FieldError) {
-	if fact.EventID == nil {
-		errs = errs.Also(apis.ErrMissingField("spec", "eventId"))
+func (in *FactSpec) ValidateFactSpec(warns *admission.Warnings, errs *field.ErrorList) {
+	if in.EventID == nil {
+		*errs = append(*errs, field.Invalid(field.NewPath("spec").Child("eventId"), in.EventID, "it should be present"))
 	}
-	if len(fact.PipelineRef) == 0 {
-		errs = errs.Also(apis.ErrMissingField("spec", "pipelineRef"))
+	if len(in.PipelineRef) == 0 {
+		*errs = append(*errs, field.Invalid(field.NewPath("spec").Child("pipelineRef"), in.EventID, "it should be present"))
 	}
-	if len(fact.ProjectName) == 0 {
-		errs = errs.Also(apis.ErrMissingField("spec", "projectName"))
+	if len(in.ProjectName) == 0 {
+		*errs = append(*errs, field.Invalid(field.NewPath("spec").Child("projectName"), in.EventID, "it should be present"))
 	}
-	if len(fact.ProjectURL) == 0 {
-		errs = errs.Also(apis.ErrMissingField("spec", "projectUrl"))
+	if len(in.ProjectURL) == 0 {
+		*errs = append(*errs, field.Invalid(field.NewPath("spec").Child("projectUrl"), in.EventID, "it should be present"))
 	}
-	if len(fact.Ref) == 0 {
-		errs = errs.Also(apis.ErrMissingField("spec", "ref"))
+	if len(in.Ref) == 0 {
+		*errs = append(*errs, field.Invalid(field.NewPath("spec").Child("ref"), in.EventID, "it should be present"))
 	}
-	if len(fact.Commit) == 0 {
-		errs = errs.Also(apis.ErrMissingField("spec", "commit"))
+	if len(in.CommitMessage) == 0 {
+		*warns = append(*warns, "commitMessage is missing")
 	}
-	if len(fact.BeforeSha) == 0 {
-		errs = errs.Also(apis.ErrMissingField("spec", "beforeSha"))
+	if len(in.Commit) == 0 {
+		*errs = append(*errs, field.Invalid(field.NewPath("spec").Child("commit"), in.EventID, "it should be present"))
 	}
-	if len(fact.CommitMessage) == 0 {
-		errs = errs.Also(apis.ErrMissingField("spec", "commitMessage"))
+	if len(in.BeforeSha) == 0 {
+		*errs = append(*errs, field.Invalid(field.NewPath("spec").Child("beforeSha"), in.EventID, "it should be present"))
 	}
-
-	if len(fact.UserId) == 0 {
-		errs = errs.Also(apis.ErrMissingField("spec", "userId"))
+	if len(in.UserId) == 0 {
+		*errs = append(*errs, field.Invalid(field.NewPath("spec").Child("userId"), in.EventID, "it should be present"))
 	}
 	return
 }
 
-func ValidateTrigger(trigger *TriggerSpec) (errs *apis.FieldError) {
+func (in *FactSpec) ValidateTrigger(_ *admission.Warnings, errs *field.ErrorList) {
+	trigger := in.Trigger
 	if trigger == nil {
-		errs = errs.Also(apis.ErrMissingField("spec", "trigger"))
+		*errs = append(*errs, field.Invalid(field.NewPath("spec").Child("trigger"), in.EventID, "it should be present"))
 		return
 	}
 	if len(trigger.ID) == 0 {
-		errs = errs.Also(apis.ErrMissingField("spec", "trigger", "id"))
+		*errs = append(*errs, field.Invalid(field.NewPath("spec").Child("trigger").Child("id"), trigger.ID, "it should be present"))
 	}
 	if len(trigger.Ref) == 0 {
-		errs = errs.Also(apis.ErrMissingField("spec", "trigger", "ref"))
+		*errs = append(*errs, field.Invalid(field.NewPath("spec").Child("trigger").Child("ref"), trigger.Ref, "it should be present"))
 	}
-	return
 }
 
-func ValidatePipeline(p *corev1.LocalObjectReference) (errs *apis.FieldError) {
-	if p == nil || len(p.Name) == 0 {
-		errs = errs.Also(apis.ErrMissingField("spec", "pipeline"))
+func (in *FactSpec) ValidatePipeline(_ *admission.Warnings, errs *field.ErrorList) {
+	if in.PipelineSource == nil || len(in.PipelineSource.Name) == 0 {
+		*errs = append(*errs, field.Invalid(field.NewPath("spec").Child("pipeline"), in.PipelineSource, "it should be present"))
 	}
 	return
 }

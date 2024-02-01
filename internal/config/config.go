@@ -25,7 +25,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/w6d-io/ciops/internal/embedx"
-	"github.com/w6d-io/ciops/internal/pipelineruns"
+	"github.com/w6d-io/ciops/internal/k8s/pipelineruns"
 	"github.com/w6d-io/jsonschema"
 	"github.com/w6d-io/x/cmdx"
 	"github.com/w6d-io/x/logx"
@@ -104,4 +104,5 @@ func Init(_ *cobra.Command, _ []string) {
 	}
 	cmdx.Must(hookSubscription(), "hook subscription failed")
 	cmdx.Should(viper.UnmarshalKey(ViperKeyPipelinerun, &pipelineruns.LC), "failed to record pod template")
+	cmdx.Should(viper.UnmarshalKey(ViperKeyWorkspaces, &pipelineruns.WB), "failed to record pod template")
 }

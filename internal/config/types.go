@@ -48,6 +48,7 @@ const (
 	ViperKeyHooks             = "hooks"
 	ViperKeyPipelinerun       = "pipelinerun"
 	ViperKeyPipelinerunPrefix = "pipelinerun.prefix"
+	ViperKeyWorkspaces        = "workspaces"
 )
 
 const (

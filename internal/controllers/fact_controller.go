@@ -34,7 +34,7 @@ import (
 
 	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
 	"github.com/w6d-io/ciops/api/v1alpha1"
-	"github.com/w6d-io/ciops/internal/pipelineruns"
+	"github.com/w6d-io/ciops/internal/k8s/pipelineruns"
 	"github.com/w6d-io/x/logx"
 )
 

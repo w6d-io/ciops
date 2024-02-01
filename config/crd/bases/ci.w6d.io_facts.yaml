@@ -91,6 +91,10 @@ spec:
               pipelineRef:
                 description: PipelineRef is the id pipeline resource name
                 type: string
+              projectID:
+                description: ProjectID identifier of the project
+                format: int64
+                type: integer
               projectName:
                 description: ProjectName name of project
                 type: string

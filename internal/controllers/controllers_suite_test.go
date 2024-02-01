@@ -43,13 +43,10 @@ import (
 	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
 	civ1alpha1 "github.com/w6d-io/ciops/api/v1alpha1"
 	"github.com/w6d-io/ciops/internal/controllers"
-	"github.com/w6d-io/ciops/internal/pipelineruns"
+	"github.com/w6d-io/ciops/internal/k8s/pipelineruns"
 	"github.com/w6d-io/x/logx"
 	//+kubebuilder:scaffold:imports
 )
-
-// These tests use Ginkgo (BDD-style Go testing framework). Refer to
-// http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
 
 var cfg *rest.Config
 var k8sClient client.Client

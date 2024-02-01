@@ -25,7 +25,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/w6d-io/ciops/internal/embedx"
-	"github.com/w6d-io/ciops/internal/pipelineruns"
+	"github.com/w6d-io/ciops/internal/k8s/pipelineruns"
 	"github.com/w6d-io/jsonschema"
 	"github.com/w6d-io/x/cmdx"
 	"github.com/w6d-io/x/logx"

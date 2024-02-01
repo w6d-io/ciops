@@ -156,6 +156,7 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Fact) error {
 				"pipeline.w6d.io/name":        fmt.Sprintf("pipelinerun-%d", *eSpec.EventID),
 				"pipeline.w6d.io/trigger_id":  eSpec.Trigger.ID,
 				"pipeline.w6d.io/provider_id": e.Spec.ProviderId,
+				"pipeline.w6d.io/project_id":  fmt.Sprintf("%d", e.Spec.ProjectID),
 				"pipeline.w6d.io/type":        eSpec.Trigger.Type,
 			},
 		},
@@ -176,7 +177,7 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Fact) error {
 			Params: params,
 			TaskRunTemplate: pipelinev1.PipelineTaskRunTemplate{
 				PodTemplate:        LC.Template,
-				ServiceAccountName: "default",
+				ServiceAccountName: fmt.Sprintf("sa-%d", e.Spec.ProjectID),
 			},
 			Workspaces: LC.WB,
 		}

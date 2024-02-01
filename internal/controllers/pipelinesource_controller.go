@@ -76,7 +76,8 @@ func (r *PipelineSourceReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 			Requeue: true,
 		}, err
 	}
-	// DoNamespace
+	// TODO: (DoNamespace), Tasks, Pipeline, Secret (git), Service Account
+	//
 	log.Info("resources successfully reconciled")
 	_ = hook.Send(ctx, &notification.Notification{
 		Id:      e.Spec.ProjectID.String(),

@@ -104,5 +104,4 @@ func Init(_ *cobra.Command, _ []string) {
 	}
 	cmdx.Must(hookSubscription(), "hook subscription failed")
 	cmdx.Should(viper.UnmarshalKey(ViperKeyPipelinerun, &pipelineruns.LC), "failed to record pod template")
-	cmdx.Should(viper.UnmarshalKey(ViperKeyWorkspaces, &pipelineruns.WB), "failed to record pod template")
 }

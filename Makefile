@@ -156,7 +156,7 @@ build: generate fmt vet ## Build ciops binary.
 run: manifests generate fmt vet ## Run a controller from your host.
 	go run $(GOTAGS) \
        -ldflags="-X 'github.com/w6d-io/ciops/internal/config.Version=${VERSION}'" \
-       . server --config=test/config.yaml
+       . server
 
 .PHONY: docker-build
 docker-build: ## Build docker image with the ciops.

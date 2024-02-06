@@ -24,15 +24,15 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
+	apis "github.com/w6d-io/apis/pipeline/v1alpha1"
 	"github.com/w6d-io/ciops/api/v1alpha1"
 )
 
 var _ = Describe("pipeline source controller", func() {
 	const (
-		FactName                               = "test-fact"
-		ProjectId   pipelinev1alpha1.ProjectID = 4242
-		PipelineRef                            = "pipeline-4242-1"
+		FactName                   = "test-fact"
+		ProjectId   apis.ProjectID = 4242
+		PipelineRef                = "pipeline-4242-1"
 
 		timeout  = time.Second * 10
 		duration = time.Second * 10
@@ -54,11 +54,11 @@ var _ = Describe("pipeline source controller", func() {
 						Name:      "pipeline-source-1",
 						Namespace: "p6e-cx-4242",
 					},
-					Spec: pipelinev1alpha1.Pipeline{
+					Spec: apis.Pipeline{
 						ID:               PipelineRef,
 						PipelineIDNumber: "1",
 						ProjectID:        ProjectId,
-						Triggers: []pipelinev1alpha1.Trigger{
+						Triggers: []apis.Trigger{
 							{
 								ID:          "trigger-4242-1",
 								Ref:         "github_webhook",
@@ -71,22 +71,22 @@ var _ = Describe("pipeline source controller", func() {
 								},
 							},
 						},
-						Stages: []pipelinev1alpha1.Stage{
+						Stages: []apis.Stage{
 							{
 								ID:   "stage-4242-1-1659424242",
 								Name: "Stage 1",
-								Tasks: []pipelinev1alpha1.Task{
+								Tasks: []apis.Task{
 									{
 										ID:            "task-4242-1-1659424242",
 										Name:          "leaks",
 										SkipOnFailure: false,
-										Conditions: pipelinev1alpha1.Conditions{{{
+										Conditions: apis.Conditions{{{
 											Id:   "condition-1",
 											Ref:  "trigger-4242-1",
 											Type: "trigger",
 											When: "main",
 										}}},
-										Actions: []pipelinev1alpha1.Action{
+										Actions: []apis.Action{
 											{
 												ID:          "action-4242-1-1659424242",
 												Name:        "leaks",
@@ -107,7 +107,7 @@ var _ = Describe("pipeline source controller", func() {
 										Status:    "",
 									},
 								},
-								Status:    pipelinev1alpha1.Pending.ToString(),
+								Status:    apis.Pending.ToString(),
 								EndTime:   time.Now().UnixMilli(),
 								StartTime: 0,
 							},
@@ -118,7 +118,7 @@ var _ = Describe("pipeline source controller", func() {
 						LogUri:    "",
 						Complete:  true,
 						TriggerId: "trigger-4242-1",
-						Commit:    pipelinev1alpha1.Commit{},
+						Commit:    apis.Commit{},
 						EventID:   "1",
 					},
 				}

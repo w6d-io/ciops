@@ -19,11 +19,14 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"github.com/w6d-io/ciops/internal/k8s/sa"
+	corev1 "k8s.io/api/core/v1"
 	"time"
 
 	"github.com/google/uuid"
 	tkn "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -35,6 +38,7 @@ import (
 
 	notification "github.com/w6d-io/apis/notification/v1alpha1"
 	civ1alpha1 "github.com/w6d-io/ciops/api/v1alpha1"
+	"github.com/w6d-io/ciops/internal/k8s/pipelines"
 	"github.com/w6d-io/hook"
 	"github.com/w6d-io/x/logx"
 )
@@ -78,6 +82,37 @@ func (r *PipelineSourceReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 	}
 	// TODO: (DoNamespace), Tasks, Pipeline, Secret (git), Service Account
 	//
+	p := &pipelines.Pipelines{}
+	err = p.Parse(ctx, r, e)
+	if err != nil {
+		log.Error(err, "fail to parse tasks")
+		return ctrl.Result{
+			Requeue: true,
+		}, err
+	}
+	s := sa.ServiceAccount{}
+	if err := s.CreateServiceAccount(ctx, e); err != nil {
+		return ctrl.Result{
+			Requeue: true,
+		}, err
+	}
+	p.Resources = append(p.Resources, s.Resources...)
+	if len(p.Resources) == 0 {
+		return ctrl.Result{
+			Requeue: false,
+		}, nil
+	}
+
+	for _, f := range p.Resources {
+		err = f(ctx, r, e)
+		if err != nil && !apierrors.IsAlreadyExists(err) {
+			log.Error(err, "fail to build resource")
+			return ctrl.Result{
+				Requeue: true,
+			}, err
+		}
+	}
+
 	log.Info("resources successfully reconciled")
 	_ = hook.Send(ctx, &notification.Notification{
 		Id:      e.Spec.ProjectID.String(),
@@ -99,6 +134,7 @@ func (r *PipelineSourceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&civ1alpha1.PipelineSource{}).
 		Owns(&tkn.Pipeline{}).
 		Owns(&tkn.Task{}).
+		Owns(&corev1.ServiceAccount{}).
 		WithOptions(controller.Options{
 			MaxConcurrentReconciles: 10,
 		}).

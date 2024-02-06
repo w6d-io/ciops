@@ -19,7 +19,7 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
+	apis "github.com/w6d-io/apis/pipeline/v1alpha1"
 )
 
 // PipelineSourceStatus defines the observed state of PipelineSource
@@ -63,8 +63,8 @@ type PipelineSource struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   pipelinev1alpha1.Pipeline `json:"spec,omitempty"`
-	Status PipelineSourceStatus      `json:"status,omitempty"`
+	Spec   apis.Pipeline        `json:"spec,omitempty"`
+	Status PipelineSourceStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true

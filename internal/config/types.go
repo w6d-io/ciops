@@ -38,17 +38,19 @@ var (
 )
 
 const (
-	ViperKeyMetricsListen     = "listen.metrics"
-	ViperKeyProbeListen       = "listen.probe"
-	ViperKeyWebhookPort       = "webhook.port"
-	ViperKeyWebhookHost       = "webhook.host"
-	ViperKeyLeaderElect       = "election.enabled"
-	ViperKeyLeaderName        = "election.resourceName"
-	ViperKeyLeaderNamespace   = "election.namespace"
-	ViperKeyHooks             = "hooks"
-	ViperKeyPipelinerun       = "pipelinerun"
-	ViperKeyPipelinerunPrefix = "pipelinerun.prefix"
-	ViperKeyWorkspaces        = "workspaces"
+	ViperKeyMetricsListen       = "listen.metrics"
+	ViperKeyProbeListen         = "listen.probe"
+	ViperKeyWebhookPort         = "webhook.port"
+	ViperKeyWebhookHost         = "webhook.host"
+	ViperKeyLeaderElect         = "election.enabled"
+	ViperKeyLeaderName          = "election.resourceName"
+	ViperKeyLeaderNamespace     = "election.namespace"
+	ViperKeyHooks               = "hooks"
+	ViperKeyPipelinerun         = "pipelinerun"
+	ViperKeyPipelinerunPrefix   = "pipelinerun.prefix"
+	ViperKeyExtraDefaultActions = "extra.defaultActions"
+
+	ViperKeyWorkspaces = "workspaces"
 )
 
 const (

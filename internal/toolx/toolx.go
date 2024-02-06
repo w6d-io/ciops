@@ -16,6 +16,11 @@ Created on 26/01/2024
 package toolx
 
 import (
+	"bytes"
+	pipelinev1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/serializer/json"
+	"k8s.io/client-go/kubernetes/scheme"
 	"runtime/debug"
 
 	"github.com/go-logr/logr"
@@ -33,4 +38,32 @@ func ShowVersion(log logr.Logger, version string) {
 		}
 	}
 	log.Info("start service", info...)
+}
+
+func DeDuplicateParams(src []pipelinev1.ParamSpec) (n []pipelinev1.ParamSpec) {
+	for _, i := range src {
+		if !IsContainParams(n, i) {
+			n = append(n, i)
+		}
+	}
+	return
+}
+
+func IsContainParams(t []pipelinev1.ParamSpec, p pipelinev1.ParamSpec) bool {
+	for _, c := range t {
+		if c.Name == p.Name {
+			return true
+		}
+	}
+	return false
+}
+
+// GetObjectContain ...
+func GetObjectContain(obj runtime.Object) string {
+	s := json.NewSerializerWithOptions(json.DefaultMetaFactory, scheme.Scheme, scheme.Scheme, json.SerializerOptions{Yaml: true})
+	buf := new(bytes.Buffer)
+	if err := s.Encode(obj, buf); err != nil {
+		return "<ERROR>\n"
+	}
+	return buf.String()
 }

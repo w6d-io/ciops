@@ -17,14 +17,21 @@ package config
 
 import (
 	"context"
+	"encoding/json"
+	"github.com/w6d-io/ciops/internal/k8s/pipelines"
+	"github.com/w6d-io/ciops/internal/k8s/tasks"
+	"gopkg.in/yaml.v3"
+	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/w6d-io/ciops/internal/embedx"
+	"github.com/w6d-io/ciops/internal/k8s/actions"
 	"github.com/w6d-io/ciops/internal/k8s/pipelineruns"
 	"github.com/w6d-io/jsonschema"
 	"github.com/w6d-io/x/cmdx"
@@ -104,4 +111,55 @@ func Init(_ *cobra.Command, _ []string) {
 	}
 	cmdx.Must(hookSubscription(), "hook subscription failed")
 	cmdx.Should(viper.UnmarshalKey(ViperKeyPipelinerun, &pipelineruns.LC), "failed to record pod template")
+	cmdx.Should(viper.UnmarshalKey(ViperKeyPipelinerun, &tasks.Workspace), "failed to record workspace pipeline task binding")
+	cmdx.Should(viper.UnmarshalKey(ViperKeyPipelinerun, &pipelines.Workspace), "failed to record workspace and workspace pipeline task binding")
+	extraConfigJson(ViperKeyExtraDefaultActions, actions.Defaults)
+}
+
+func extraConfigJson(key string, rawVar interface{}) {
+	extraFile := viper.GetString(key)
+	logx.WithName(nil, "extra.config").V(2).Info("parameters", "key", key, "extraFile", extraFile)
+	if extraFile != "" {
+		base := filepath.Base(extraFile)
+		ext := filepath.Ext(extraFile)
+		cfg := viper.New()
+		cfg.SetConfigName(FileNameWithoutExtension(base))
+		cfg.SetConfigType(strings.TrimLeft(ext, "."))
+		cfg.AddConfigPath(filepath.Dir(extraFile))
+		if err := cfg.ReadInConfig(); err != nil {
+			logx.WithName(context.Background(), "loading").Info("config", "key", key, "extraFile", extraFile)
+			cmdx.Should(err, "fail to read config")
+		} else {
+			logx.WithName(context.Background(), "loading").Info("config", "key", key, "extraFile", extraFile)
+			cmdx.Should(convert(extraFile, rawVar), "load config failed")
+		}
+		cfg.WatchConfig()
+		cfg.OnConfigChange(func(in fsnotify.Event) {
+			logx.WithName(context.Background(), "reloading").Info("config", "key", key, "extraFile", extraFile)
+			cmdx.Should(convert(extraFile, rawVar), "load config failed")
+		})
+	}
+}
+
+func convert(extraFile string, target interface{}) error {
+	yamlFile, err := os.ReadFile(extraFile)
+
+	if err != nil {
+		return err
+	} else {
+		var tmp map[string]interface{}
+		err = yaml.Unmarshal(yamlFile, &tmp)
+		if err != nil {
+			return err
+		}
+		d, err := json.Marshal(&tmp)
+		if err != nil {
+			return err
+		}
+		err = json.Unmarshal(d, &target)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

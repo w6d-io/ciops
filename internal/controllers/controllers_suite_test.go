@@ -40,7 +40,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
+	apis "github.com/w6d-io/apis/pipeline/v1alpha1"
 	civ1alpha1 "github.com/w6d-io/ciops/api/v1alpha1"
 	"github.com/w6d-io/ciops/internal/controllers"
 	"github.com/w6d-io/ciops/internal/k8s/pipelineruns"
@@ -152,7 +152,7 @@ var _ = AfterSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 })
 
-func DoNamespace(ctx context.Context, r client.Client, projectId pipelinev1alpha1.ProjectID) error {
+func DoNamespace(ctx context.Context, r client.Client, projectId apis.ProjectID) error {
 	log := logx.WithName(ctx, "DoNamespace").WithValues("project_id", projectId.String(), "namespace", GetName(projectId))
 	log.V(1).Info("build namespace")
 
@@ -175,6 +175,6 @@ func DoNamespace(ctx context.Context, r client.Client, projectId pipelinev1alpha
 	return nil
 }
 
-func GetName(p pipelinev1alpha1.ProjectID) string {
+func GetName(p apis.ProjectID) string {
 	return fmt.Sprintf("%s-%s", Prefix, p.String())
 }

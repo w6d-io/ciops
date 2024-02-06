@@ -26,7 +26,7 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	v1 "knative.dev/pkg/apis/duck/v1"
 
-	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
+	apis "github.com/w6d-io/apis/pipeline/v1alpha1"
 	"github.com/w6d-io/ciops/api/v1alpha1"
 )
 
@@ -46,7 +46,7 @@ func getObjectContain(obj runtime.Object) string {
 // Condition returns a kubernetes State
 func Condition(c v1.Conditions) (status v1alpha1.State) {
 	if len(c) == 0 {
-		return v1alpha1.State(pipelinev1alpha1.Pending.ToString())
+		return v1alpha1.State(apis.Pending.ToString())
 	}
 
 	switch c[0].Status {

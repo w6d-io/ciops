@@ -34,7 +34,7 @@ type Hook struct {
 
 func hookSubscription() error {
 	var hooks []Hook
-	log := logx.WithName(nil, "Hook.Subscription")
+	log := logx.WithName(context.Background(), "Hook.Subscription")
 	if err := viper.UnmarshalKey(ViperKeyHooks, &hooks); err != nil {
 		log.Error(err, "unmarshalling hook failed")
 		return errorx.Wrap(err, "unmarshalling hook failed")

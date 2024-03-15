@@ -40,21 +40,19 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
+	apis "github.com/w6d-io/apis/pipeline/v1alpha1"
 	civ1alpha1 "github.com/w6d-io/ciops/api/v1alpha1"
-	"github.com/w6d-io/ciops/controllers"
-	"github.com/w6d-io/ciops/internal/pipelineruns"
+	"github.com/w6d-io/ciops/internal/controllers"
+	"github.com/w6d-io/ciops/internal/k8s/pipelineruns"
 	"github.com/w6d-io/x/logx"
 	//+kubebuilder:scaffold:imports
 )
 
-// These tests use Ginkgo (BDD-style Go testing framework). Refer to
-// http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
-
 var cfg *rest.Config
-var ctx context.Context
 var k8sClient client.Client
 var testEnv *envtest.Environment
+var ctx context.Context
+var cancel context.CancelFunc
 var scheme = runtime.NewScheme()
 var Prefix = "p6e-cx"
 
@@ -65,6 +63,10 @@ func TestAPIs(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
+	correlationID := uuid.New().String()
+	ctx, cancel = context.WithCancel(context.Background())
+	ctx = context.WithValue(ctx, logx.CorrelationID, correlationID)
+
 	encoder := zapcore.EncoderConfig{
 		// Keys can be anything except the empty string.
 		TimeKey:        "T",
@@ -89,8 +91,8 @@ var _ = BeforeSuite(func() {
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{
 		CRDDirectoryPaths: []string{
-			filepath.Join("..", "config", "crd", "bases"),
-			filepath.Join("..", "third_party", "github.com", "tektoncd", "pipeline", "config"),
+			filepath.Join("..", "..", "config", "crd", "bases"),
+			filepath.Join("..", "..", "third_party", "github.com", "tektoncd", "pipeline", "config"),
 		},
 		ErrorIfCRDPathMissing: true,
 	}
@@ -141,18 +143,16 @@ var _ = BeforeSuite(func() {
 		err = k8sManager.Start(ctx)
 		Expect(err).ToNot(HaveOccurred(), "failed to run manager")
 	}()
-	correlationID := uuid.New().String()
-	ctx = context.Background()
-	ctx = context.WithValue(ctx, logx.CorrelationID, correlationID)
 })
 
 var _ = AfterSuite(func() {
+	cancel()
 	By("tearing down the test environment")
 	err := testEnv.Stop()
 	Expect(err).NotTo(HaveOccurred())
 })
 
-func DoNamespace(ctx context.Context, r client.Client, projectId pipelinev1alpha1.ProjectID) error {
+func DoNamespace(ctx context.Context, r client.Client, projectId apis.ProjectID) error {
 	log := logx.WithName(ctx, "DoNamespace").WithValues("project_id", projectId.String(), "namespace", GetName(projectId))
 	log.V(1).Info("build namespace")
 
@@ -175,6 +175,6 @@ func DoNamespace(ctx context.Context, r client.Client, projectId pipelinev1alpha
 	return nil
 }
 
-func GetName(p pipelinev1alpha1.ProjectID) string {
+func GetName(p apis.ProjectID) string {
 	return fmt.Sprintf("%s-%s", Prefix, p.String())
 }

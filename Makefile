@@ -143,7 +143,6 @@ test: manifests generate fmt vet envtest ## Run tests.
 .PHONY: format
 format: goimports
 	$(GOIMPORTS) -w -local github.com/w6d-io,gitlab.w6d.io/w6d api cmd internal
-	$(GOIMPORTS) -w -local github.com/w6d-io,gitlab.w6d.io/w6d api controllers internal
 
 ##@ Build
 
@@ -157,11 +156,11 @@ build: generate fmt vet ## Build ciops binary.
 run: manifests generate fmt vet ## Run a controller from your host.
 	go run $(GOTAGS) \
        -ldflags="-X 'github.com/w6d-io/ciops/internal/config.Version=${VERSION}'" \
-       . server --config=test/config.yaml
+       . server
 
 .PHONY: docker-build
-docker-build: test ## Build docker image with the ciops.
-	docker build --build-arg=VERSION=${VERSION} --build-arg=VCS_REF=${VCS_REF} --build-arg=BUILD_DATE=${BUILD_DATE} -t ${IMG} .
+docker-build: ## Build docker image with the ciops.
+	docker build --build-arg=VERSION=${VERSION} -t ${IMG} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the ciops.

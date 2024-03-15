@@ -17,8 +17,9 @@ limitations under the License.
 package main
 
 import (
-	ciops "github.com/w6d-io/ciops/cmd"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+
+	"github.com/w6d-io/ciops/cmd/ciops"
 )
 
 func main() {

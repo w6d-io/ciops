@@ -18,7 +18,6 @@ package controllers
 
 import (
 	"context"
-	pipelinev1alpha1 "github.com/w6d-io/apis/pipeline/v1alpha1"
 	"strings"
 
 	"github.com/google/uuid"
@@ -33,8 +32,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
+	apis "github.com/w6d-io/apis/pipeline/v1alpha1"
 	"github.com/w6d-io/ciops/api/v1alpha1"
-	"github.com/w6d-io/ciops/internal/pipelineruns"
+	"github.com/w6d-io/ciops/internal/k8s/pipelineruns"
 	"github.com/w6d-io/x/logx"
 )
 
@@ -103,8 +103,8 @@ func (r *FactReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		}
 		return ctrl.Result{Requeue: true}, err
 	}
-	log.V(1).Info("update status", "status", pipelinev1alpha1.Pending.ToString(), "step", "6")
-	status.State = v1alpha1.State(pipelinev1alpha1.Pending.ToString())
+	log.V(1).Info("update status", "status", apis.Pending.ToString(), "step", "6")
+	status.State = v1alpha1.State(apis.Pending.ToString())
 	if err = r.UpdateStatus(ctx, req.NamespacedName, status); err != nil {
 		log.Error(err, "update status failed")
 		return ctrl.Result{Requeue: true}, err

@@ -18,7 +18,7 @@ package config_test
 import (
 	"testing"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/spf13/viper"
 	zapraw "go.uber.org/zap"
@@ -56,7 +56,7 @@ var _ = BeforeSuite(func() {
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts), zap.RawZapOpts(zapraw.AddCaller(), zapraw.AddCallerSkip(-2))))
 	viper.SetConfigType("yaml")
 
-}, 60)
+})
 
 var _ = AfterSuite(func() {
 })

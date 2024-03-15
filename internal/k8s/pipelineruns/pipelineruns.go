@@ -18,8 +18,9 @@ package pipelineruns
 import (
 	"context"
 	"fmt"
-	"k8s.io/apimachinery/pkg/types"
 	"time"
+
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/pod"
 	pipelinev1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
@@ -30,6 +31,7 @@ import (
 	notification "github.com/w6d-io/apis/notification/v1alpha1"
 	"github.com/w6d-io/ciops/api/v1alpha1"
 	"github.com/w6d-io/hook"
+	"github.com/w6d-io/x/errorx"
 	"github.com/w6d-io/x/logx"
 )
 
@@ -47,6 +49,9 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Fact) error {
 	namespace := e.Namespace
 	eSpec := e.Spec
 	ps := new(v1alpha1.PipelineSource)
+	if e.Spec.PipelineSource == nil {
+		return errorx.New("spec.pipeline must not be empty")
+	}
 	if err := r.Get(ctx, types.NamespacedName{
 		Name:      e.Spec.PipelineSource.Name,
 		Namespace: namespace,
@@ -151,6 +156,7 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Fact) error {
 				"pipeline.w6d.io/name":        fmt.Sprintf("pipelinerun-%d", *eSpec.EventID),
 				"pipeline.w6d.io/trigger_id":  eSpec.Trigger.ID,
 				"pipeline.w6d.io/provider_id": e.Spec.ProviderId,
+				"pipeline.w6d.io/project_id":  fmt.Sprintf("%d", e.Spec.ProjectID),
 				"pipeline.w6d.io/type":        eSpec.Trigger.Type,
 			},
 		},
@@ -171,7 +177,7 @@ func Build(ctx context.Context, r client.Client, e *v1alpha1.Fact) error {
 			Params: params,
 			TaskRunTemplate: pipelinev1.PipelineTaskRunTemplate{
 				PodTemplate:        LC.Template,
-				ServiceAccountName: "default",
+				ServiceAccountName: fmt.Sprintf("sa-%d", e.Spec.ProjectID),
 			},
 			Workspaces: LC.WB,
 		}

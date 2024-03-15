@@ -10,16 +10,21 @@ You may obtain a copy of the License at
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is prohibited.
+Created on 02/02/2024
 */
 
-package embedx
+package actions
 
 import (
-	_ "embed"
+	"github.com/w6d-io/ciops/api/v1alpha1"
+	"github.com/w6d-io/ciops/api/v1alpha2"
 )
 
-//go:embed config.schema.json
-var ConfigSchema string
+var (
+	Defaults = new(Component)
+)
 
-//go:embed webhook.schema.json
-var WebhookSchema string
+type Component struct {
+	Fields  []v1alpha1.Field `mapstructure:"fields"  json:"fields"`
+	Actions []v1alpha2.Step  `mapstructure:"actions" json:"actions"`
+}

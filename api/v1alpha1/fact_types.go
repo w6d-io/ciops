@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type Status int
@@ -47,6 +48,11 @@ const (
 	Errored State = "Errored"
 )
 
+var (
+	// GroupFactKind is group kind for Fact
+	GroupFactKind = schema.GroupKind{Group: "ci.w6d.io", Kind: "Fact"}
+)
+
 const (
 	AnnotationSchedule = "ciops.ci.w6d.io/scheduled-at"
 	FactFinalizer      = "fact.ci.w6d.io/finalizer"
@@ -73,6 +79,9 @@ type FactSpec struct {
 
 	// ProjectURL url of the project
 	ProjectURL string `json:"projectUrl,omitempty"`
+
+	// ProjectID identifier of the project
+	ProjectID int64 `json:"projectID,omitempty"`
 
 	// Ref is project reference for this fact
 	Ref string `json:"ref,omitempty"`

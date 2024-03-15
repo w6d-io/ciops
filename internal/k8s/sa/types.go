@@ -10,16 +10,29 @@ You may obtain a copy of the License at
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is prohibited.
+Created on 06/02/2024
 */
 
-package embedx
+package sa
 
 import (
-	_ "embed"
+	"context"
+	"github.com/w6d-io/ciops/api/v1alpha1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-//go:embed config.schema.json
-var ConfigSchema string
+const (
+	GitPrefixSecret = "secret-git"
+)
 
-//go:embed webhook.schema.json
-var WebhookSchema string
+// ServiceAccount ...
+type ServiceAccount struct {
+	Resources []func(context.Context, client.Client, *v1alpha1.PipelineSource) error
+}
+
+type metadata struct {
+	name      string
+	namespace string
+	projectID int64
+	labels    map[string]string
+}
